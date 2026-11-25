@@ -42,7 +42,7 @@ body {
 .app { max-width: 600px; margin: 0 auto; }
 .view { display: flex; flex-direction: column; gap: 12px; }
 .num { font-variant-numeric: tabular-nums; }
-button { font: inherit; color: inherit; }
+button, input, select { font: inherit; color: inherit; }
 header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 2px 10px; }
 header h1 { margin: 0; font-size: 24px; letter-spacing: -0.02em; font-weight: 700; }
 header h1 span { color: var(--accent); }
@@ -61,6 +61,24 @@ header .stamp { color: var(--muted); font-size: 12.5px; }
 .meta.ok { color: var(--up); }
 .empty { color: var(--muted); font-size: 13.5px; padding: 6px 0; }
 .vt { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin: 0; padding: 2px 2px 6px; }
+
+/* Portföy */
+.pf-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pf-form input, .pf-form select {
+  width: 100%; min-width: 0; font-size: 14px; padding: 9px 11px;
+  border-radius: 11px; border: 1px solid var(--line); background: var(--bg); color: var(--fg);
+}
+.pf-submit {
+  grid-column: 1 / -1; appearance: none; border: 0; background: var(--accent); color: var(--accent-fg);
+  border-radius: 11px; padding: 10px 14px; font-weight: 600; font-size: 14px; cursor: pointer;
+}
+.pf-sum { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 10px 0 6px; border-bottom: 1px solid var(--line); }
+.pf-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.pf-item:last-child { border-bottom: 0; padding-bottom: 2px; }
+.pf-del {
+  appearance: none; border: 1px solid var(--line); background: var(--bg); color: var(--down);
+  border-radius: 8px; padding: 5px 9px; font-size: 12px; font-weight: 600; cursor: pointer; flex: none;
+}
 
 /* Hava */
 .weather { display: flex; align-items: center; gap: 14px; }
@@ -269,9 +287,29 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
   <section class="card"><div class="card-h"><h2>10 günlük tahmin</h2><span class="meta">Güne dokun: saatlik</span></div><div id="wx-days"></div></section>
 </main>
 
-<!-- VARLIKLAR (BORSA + KIYMETLİ MADEN + DÖVİZ) -->
+<!-- VARLIKLAR (PORTFÖY + BORSA + KIYMETLİ MADEN + DÖVİZ) -->
 <main class="view" id="v-assets" hidden>
   <h1 class="vt">Piyasalar & Grafikler</h1>
+
+  <!-- KENDİ VARLIKLARINI EKLE / YÖNET -->
+  <section class="card">
+    <div class="card-h"><h2>Portföyüm · Kendi Varlıklarım</h2><span class="meta" id="pf-count">0 kalem</span></div>
+    <form class="pf-form" id="pf-form">
+      <select id="pf-type" aria-label="Varlık türü">
+        <option value="BIST">BIST Hisse</option>
+        <option value="ALTIN">Altın (gram)</option>
+        <option value="KRIPTO">Kripto</option>
+        <option value="DOVIZ">Döviz</option>
+        <option value="DIGER">Diğer</option>
+      </select>
+      <input id="pf-sym" type="text" placeholder="Sembol (ör. TUPRS, PGSUS)" autocomplete="off" required>
+      <input id="pf-name" type="text" placeholder="Ad / Açıklama (opsiyonel)">
+      <input id="pf-qty" type="number" step="any" min="0" placeholder="Adet / Miktar" required>
+      <input id="pf-cost" type="number" step="any" min="0" placeholder="Birim Maliyet (₺)" style="grid-column:1 / -1">
+      <button class="pf-submit" type="submit">Varlık Ekle</button>
+    </form>
+    <div id="pf-list"></div>
+  </section>
 
   <!-- BORSA GRAFİĞİ -->
   <section class="card">
@@ -315,17 +353,15 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
   </section>
 </main>
 
-<!-- EKONOMİ (ENFLASYON, KRİTİK İSTİHBARAT, KONUT, ARAÇ) -->
+<!-- EKONOMİ -->
 <main class="view" id="v-economy" hidden>
   <h1 class="vt">Ekonomi & Kritik Radar</h1>
 
-  <!-- KRİTİK PİYASA İSTİHBARATI -->
   <section class="card">
     <div class="card-h"><h2>Kritik Piyasa & Finans İstihbaratı</h2><span class="meta ok">Kasım 2026 Analiz</span></div>
     <div id="intel-list"></div>
   </section>
 
-  <!-- ENFLASYON -->
   <section class="card">
     <div class="card-h"><h2>Enflasyon & Makro (TÜİK)</h2><span class="meta">Ekim 2026 Verisi</span></div>
     <div class="kpi-grid">
@@ -341,7 +377,6 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     </div>
   </section>
 
-  <!-- İLLERE GÖRE KONUT FİYATLARI -->
   <section class="card">
     <div class="card-h"><h2>İllere Göre Konut Fiyatları</h2><span class="meta">Endeksa & TCMB KFE</span></div>
     <div class="search" style="margin-bottom:8px">
@@ -356,7 +391,6 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     <div class="meta" style="margin-top:8px">* Ortalama 100 m² konut değeri ve brüt amortisman süresi baz alınmıştır.</div>
   </section>
 
-  <!-- ARABA FİYATLARI -->
   <section class="card">
     <div class="card-h"><h2>Sıfır Araç Piyasası</h2><span class="meta">Kasım 2026 Liste</span></div>
     <div class="chips" id="car-cats" style="margin-bottom:8px">
@@ -395,7 +429,7 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
 </main>
 
 <footer>
-  Kaynaklar: Open-Meteo (hava), Yahoo Finance & çoklu proxy/yedek motor (BIST), CoinGecko (kripto), Currency-API & Gold-API (döviz ve madenler), ESPN & TheSportsDB + sezon verisi (maç skorları & puan durumu), TÜİK / TCMB / Endeksa / ODMD (makro, konut ve araç endeksleri), Google Haberler. Bilgi amaçlıdır, yatırım tavsiyesi değildir.
+  Kaynaklar: Open-Meteo (hava), Yahoo Finance & çoklu proxy/yedek motor (BIST), CoinGecko (kripto), Currency-API & Gold-API (döviz ve madenler), ESPN (canlı maç skorları & puan durumu), TÜİK / TCMB / Endeksa / ODMD (makro, konut ve araç endeksleri), Google Haberler. Bilgi amaçlıdır, yatırım tavsiyesi değildir.
 </footer>
 </div>
 
@@ -441,104 +475,24 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
   var OZ = 31.1035;
   var RANGES = { "1A": [30, 3], "6A": [182, 14], "1Y": [365, 14], "5Y": [1826, 45] };
 
-  // Güncel Spor Yedeği (Canlı API yanıt vermezse anında devreye girer)
-  var SPORTS_FALLBACK = {
-    "tur.1": {
-      matches: [
-        { date: "2026-11-22T17:00:00Z", state: "post", detail: "MS", hName: "Galatasaray", hScore: "3", aName: "Eyüpspor", aScore: "1" },
-        { date: "2026-11-23T17:00:00Z", state: "post", detail: "MS", hName: "Fenerbahçe", hScore: "2", aName: "Rizespor", aScore: "0" },
-        { date: "2026-11-24T17:00:00Z", state: "post", detail: "MS", hName: "Beşiktaş", hScore: "1", aName: "Göztepe", aScore: "1" },
-        { date: "2026-11-25T17:00:00Z", state: "post", detail: "MS", hName: "Trabzonspor", hScore: "2", aName: "Başakşehir", aScore: "1" }
-      ],
-      table: [
-        { rank: 1, name: "Galatasaray", gp: 13, w: 11, d: 2, l: 0, gd: 24, pts: 35 },
-        { rank: 2, name: "Fenerbahçe", gp: 13, w: 10, d: 2, l: 1, gd: 19, pts: 32 },
-        { rank: 3, name: "Beşiktaş", gp: 13, w: 8, d: 3, l: 2, gd: 11, pts: 27 },
-        { rank: 4, name: "Trabzonspor", gp: 13, w: 7, d: 3, l: 3, gd: 7, pts: 24 },
-        { rank: 5, name: "Göztepe", gp: 13, w: 6, d: 4, l: 3, gd: 4, pts: 22 },
-        { rank: 6, name: "Başakşehir", gp: 13, w: 6, d: 2, l: 5, gd: 1, pts: 20 }
-      ]
-    },
-    "uefa.champions": {
-      matches: [
-        { date: "2026-11-24T20:00:00Z", state: "post", detail: "MS", hName: "Real Madrid", hScore: "3", aName: "Inter", aScore: "2" },
-        { date: "2026-11-24T20:00:00Z", state: "post", detail: "MS", hName: "Arsenal", hScore: "2", aName: "PSG", aScore: "0" },
-        { date: "2026-11-25T20:00:00Z", state: "post", detail: "MS", hName: "Bayern Münih", hScore: "4", aName: "Galatasaray", aScore: "1" },
-        { date: "2026-11-25T20:00:00Z", state: "post", detail: "MS", hName: "Liverpool", hScore: "2", aName: "Leverkusen", aScore: "1" }
-      ],
-      table: [
-        { rank: 1, name: "Liverpool", gp: 5, w: 5, d: 0, l: 0, gd: 11, pts: 15 },
-        { rank: 2, name: "Inter", gp: 5, w: 4, d: 1, l: 0, gd: 8, pts: 13 },
-        { rank: 3, name: "Arsenal", gp: 5, w: 4, d: 0, l: 1, gd: 9, pts: 12 },
-        { rank: 4, name: "Real Madrid", gp: 5, w: 3, d: 0, l: 2, gd: 4, pts: 9 },
-        { rank: 5, name: "Bayern Münih", gp: 5, w: 3, d: 0, l: 2, gd: 5, pts: 9 }
-      ]
-    },
-    "eng.1": {
-      matches: [
-        { date: "2026-11-21T15:00:00Z", state: "post", detail: "MS", hName: "Liverpool", hScore: "3", aName: "Man City", aScore: "1" },
-        { date: "2026-11-22T16:30:00Z", state: "post", detail: "MS", hName: "Arsenal", hScore: "2", aName: "Chelsea", aScore: "1" }
-      ],
-      table: [
-        { rank: 1, name: "Liverpool", gp: 12, w: 10, d: 1, l: 1, gd: 18, pts: 31 },
-        { rank: 2, name: "Arsenal", gp: 12, w: 8, d: 3, l: 1, gd: 13, pts: 27 },
-        { rank: 3, name: "Man City", gp: 12, w: 8, d: 1, l: 3, gd: 11, pts: 25 },
-        { rank: 4, name: "Chelsea", gp: 12, w: 7, d: 2, l: 3, gd: 7, pts: 23 }
-      ]
-    },
-    "esp.1": {
-      matches: [
-        { date: "2026-11-21T20:00:00Z", state: "post", detail: "MS", hName: "Barcelona", hScore: "4", aName: "Atletico Madrid", aScore: "2" },
-        { date: "2026-11-22T17:30:00Z", state: "post", detail: "MS", hName: "Real Madrid", hScore: "3", aName: "Sevilla", aScore: "0" }
-      ],
-      table: [
-        { rank: 1, name: "Barcelona", gp: 13, w: 11, d: 1, l: 1, gd: 25, pts: 34 },
-        { rank: 2, name: "Real Madrid", gp: 13, w: 10, d: 2, l: 1, gd: 20, pts: 32 },
-        { rank: 3, name: "Atletico Madrid", gp: 13, w: 8, d: 3, l: 2, gd: 10, pts: 27 }
-      ]
-    }
-  };
-
-  // Makro Enflasyon Serisi (TÜİK Son 12 Ay Yıllık & Aylık TÜFE %)
   var INFLATION_DATA = [
-    { m: "Kas 25", y: 47.09, mo: 2.24 },
-    { m: "Ara 25", y: 44.38, mo: 1.03 },
-    { m: "Oca 26", y: 42.12, mo: 4.15 },
-    { m: "Şub 26", y: 39.05, mo: 2.27 },
-    { m: "Mar 26", y: 37.80, mo: 2.46 },
-    { m: "Nis 26", y: 36.45, mo: 2.85 },
-    { m: "May 26", y: 35.10, mo: 1.92 },
-    { m: "Haz 26", y: 33.85, mo: 1.64 },
-    { m: "Tem 26", y: 32.90, mo: 2.35 },
-    { m: "Ağu 26", y: 31.82, mo: 2.18 },
-    { m: "Eyl 26", y: 30.89, mo: 2.41 },
-    { m: "Eki 26", y: 29.77, mo: 2.58 }
+    { m: "Kas 25", y: 47.09, mo: 2.24 }, { m: "Ara 25", y: 44.38, mo: 1.03 }, { m: "Oca 26", y: 42.12, mo: 4.15 },
+    { m: "Şub 26", y: 39.05, mo: 2.27 }, { m: "Mar 26", y: 37.80, mo: 2.46 }, { m: "Nis 26", y: 36.45, mo: 2.85 },
+    { m: "May 26", y: 35.10, mo: 1.92 }, { m: "Haz 26", y: 33.85, mo: 1.64 }, { m: "Tem 26", y: 32.90, mo: 2.35 },
+    { m: "Ağu 26", y: 31.82, mo: 2.18 }, { m: "Eyl 26", y: 30.89, mo: 2.41 }, { m: "Eki 26", y: 29.77, mo: 2.58 }
   ];
-
-  // İllere Göre Konut Fiyatları
   var HOUSING_DATA = [
-    { city: "Muğla", m2: 71767, chg: 24.8, rent: 36500, amort: 16 },
-    { city: "İstanbul", m2: 68924, chg: 27.8, rent: 45510, amort: 13 },
-    { city: "İzmir", m2: 51574, chg: 19.4, rent: 29800, amort: 14 },
-    { city: "Antalya", m2: 49200, chg: 21.2, rent: 28900, amort: 14 },
-    { city: "Aydın", m2: 44650, chg: 22.9, rent: 24500, amort: 15 },
-    { city: "Çanakkale", m2: 42180, chg: 25.1, rent: 23100, amort: 15 },
-    { city: "Ankara", m2: 40444, chg: 26.6, rent: 26400, amort: 13 },
-    { city: "Yalova", m2: 39850, chg: 23.4, rent: 22800, amort: 15 },
-    { city: "Kocaeli", m2: 38900, chg: 25.9, rent: 23900, amort: 14 },
-    { city: "Bursa", m2: 37450, chg: 22.1, rent: 22400, amort: 14 },
-    { city: "Balıkesir", m2: 37100, chg: 24.0, rent: 21200, amort: 15 },
-    { city: "Tekirdağ", m2: 35600, chg: 23.7, rent: 21500, amort: 14 },
-    { city: "Mersin", m2: 34200, chg: 20.5, rent: 20800, amort: 14 },
-    { city: "Samsun", m2: 33400, chg: 24.3, rent: 19600, amort: 14 },
-    { city: "Eskişehir", m2: 32950, chg: 25.4, rent: 20100, amort: 14 },
-    { city: "Adana", m2: 31800, chg: 21.8, rent: 19400, amort: 14 },
-    { city: "Konya", m2: 30900, chg: 26.1, rent: 18500, amort: 14 },
-    { city: "Gaziantep", m2: 30450, chg: 19.8, rent: 18900, amort: 13 },
+    { city: "Muğla", m2: 71767, chg: 24.8, rent: 36500, amort: 16 }, { city: "İstanbul", m2: 68924, chg: 27.8, rent: 45510, amort: 13 },
+    { city: "İzmir", m2: 51574, chg: 19.4, rent: 29800, amort: 14 }, { city: "Antalya", m2: 49200, chg: 21.2, rent: 28900, amort: 14 },
+    { city: "Aydın", m2: 44650, chg: 22.9, rent: 24500, amort: 15 }, { city: "Çanakkale", m2: 42180, chg: 25.1, rent: 23100, amort: 15 },
+    { city: "Ankara", m2: 40444, chg: 26.6, rent: 26400, amort: 13 }, { city: "Yalova", m2: 39850, chg: 23.4, rent: 22800, amort: 15 },
+    { city: "Kocaeli", m2: 38900, chg: 25.9, rent: 23900, amort: 14 }, { city: "Bursa", m2: 37450, chg: 22.1, rent: 22400, amort: 14 },
+    { city: "Balıkesir", m2: 37100, chg: 24.0, rent: 21200, amort: 15 }, { city: "Tekirdağ", m2: 35600, chg: 23.7, rent: 21500, amort: 14 },
+    { city: "Mersin", m2: 34200, chg: 20.5, rent: 20800, amort: 14 }, { city: "Samsun", m2: 33400, chg: 24.3, rent: 19600, amort: 14 },
+    { city: "Eskişehir", m2: 32950, chg: 25.4, rent: 20100, amort: 14 }, { city: "Adana", m2: 31800, chg: 21.8, rent: 19400, amort: 14 },
+    { city: "Konya", m2: 30900, chg: 26.1, rent: 18500, amort: 14 }, { city: "Gaziantep", m2: 30450, chg: 19.8, rent: 18900, amort: 13 },
     { city: "Kayseri", m2: 28700, chg: 23.2, rent: 17200, amort: 14 }
   ];
-
-  // Sıfır Araç Fiyat Listesi (Kasım 2026)
   var CARS_DATA = [
     { brand: "Dacia", model: "Logan Essential TCe 100", cat: "ekonomik", fuel: "Benzin · Manuel", price: 1328000, diff: -9.6 },
     { brand: "Dacia", model: "Sandero Expression TCe 100", cat: "ekonomik", fuel: "Benzin · Otomatik", price: 1390000, diff: -4.8 },
@@ -569,6 +523,11 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
   S.times = S.times || {}; S.news = S.news || {}; S.recent = S.recent || []; S.sports = S.sports || {};
   S.loc = S.loc || { name: "İstanbul", region: "İstanbul", cc: "TR", lat: 41.0138, lon: 28.9497 };
   S.ui = S.ui || {};
+
+  var PORTFOLIO = [];
+  try { PORTFOLIO = JSON.parse(localStorage.getItem("pd_portfolio_v1") || "[]") || []; } catch (e) { PORTFOLIO = []; }
+  function savePortfolio() { try { localStorage.setItem("pd_portfolio_v1", JSON.stringify(PORTFOLIO)); } catch (e) {} }
+
   var UI = {
     tab: S.ui.tab || "home",
     day: null,
@@ -678,6 +637,51 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
   function stamp() {
     var ts = Object.keys(S.times).map(function (k) { return S.times[k]; });
     $("stamp").textContent = ts.length ? "Son güncelleme " + hhmm(Math.max.apply(null, ts)) : "Veri bekleniyor…";
+  }
+
+  // ---------- Portföy (Kendi Varlıklarını Ekle / Sil) ----------
+  function findLivePrice(item) {
+    if (item.type === "BIST") {
+      var list = (S.bist && S.bist.all) || [];
+      var hit = list.filter(function (x) { return x.t === item.sym; })[0];
+      if (hit && hit.price > 0) return hit.price;
+    }
+    if (item.type === "ALTIN") {
+      var m = S.mnow && S.mnow.xau;
+      if (m && m.try > 0) return m.try / OZ;
+    }
+    return null;
+  }
+  function renderPortfolio() {
+    $("pf-count").textContent = PORTFOLIO.length + " kalem";
+    var el = $("pf-list");
+    if (!PORTFOLIO.length) {
+      el.innerHTML = '<div class="empty" style="margin-top:8px">Henüz varlık eklenmedi. Yukarıdan sembol, adet ve maliyet girerek ekleyebilirsin.</div>';
+      return;
+    }
+    var totalCost = 0, totalVal = 0;
+    var rowsHtml = PORTFOLIO.map(function (it, idx) {
+      var live = findLivePrice(it);
+      var costTotal = (it.cost || 0) * it.qty;
+      var valTotal = live != null ? live * it.qty : costTotal;
+      totalCost += costTotal;
+      totalVal += valTotal;
+      var pnl = (live != null && it.cost > 0) ? ((live - it.cost) / it.cost * 100) : null;
+      var priceNote = live != null
+        ? (it.qty + " adet · Anlık " + fmt(live, 2) + " ₺" + (it.cost > 0 ? " · Mal. " + fmt(it.cost, 2) + " ₺" : ""))
+        : (it.qty + " adet" + (it.cost > 0 ? " · Birim " + fmt(it.cost, 2) + " ₺" : ""));
+      return '<div class="pf-item">' +
+        '<div style="min-width:0"><div class="t"><span class="code">' + esc(it.sym) + '</span>' + esc(it.name || it.type) + '</div>' +
+        '<div class="d num">' + esc(priceNote) + '</div></div>' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+        '<div class="r"><div class="p num">' + fmt(valTotal, 2) + ' ₺</div>' + (pnl != null ? chgHTML(pnl) : '<span class="chg flat num">' + esc(it.type) + '</span>') + '</div>' +
+        '<button class="pf-del" data-act="pfdel" data-i="' + idx + '" aria-label="Sil">Sil</button>' +
+        '</div></div>';
+    }).join("");
+    var totDiff = totalCost > 0 ? ((totalVal - totalCost) / totalCost * 100) : null;
+    el.innerHTML = '<div class="pf-sum">' +
+      '<div><div class="meta">Toplam Tutar</div><div class="p num" style="font-size:17px;font-weight:700">' + fmt(totalVal, 2) + ' ₺</div></div>' +
+      '<div style="text-align:right"><div class="meta">Maliyet: ' + fmt(totalCost, 2) + ' ₺</div>' + (totDiff != null ? chgHTML(totDiff) : "") + '</div></div>' + rowsHtml;
   }
 
   // ---------- Hava ----------
@@ -814,7 +818,7 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     } catch (e) {}
   }
 
-  // ---------- BIST (Çoklu Kaynak + Garanti Tarihsel Grafik Motoru) ----------
+  // ---------- BIST ----------
   function enc(u) { return encodeURIComponent(u); }
   var ROUTES = [
     function (u) { return "https://corsproxy.io/?url=" + enc(u); },
@@ -857,7 +861,6 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     return getJSON(urls, 5500).then(parseYahoo);
   }
 
-  // Referans BIST Serisi Üretici (Canlı ağ kapalıysa bile kırılmayan gerçekçi eğri)
   function synthStockSeries(code, rng) {
     var info = CFG.stocks.filter(function (s) { return s[0] === code; })[0] || [code, code, 100, 1];
     var endPrice = info[2];
@@ -899,16 +902,21 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
   }
   function loadBist() {
     return yahooRace("XU100.IS", "1d", "15m").then(function (idx) {
-      var list = CFG.stocks.slice(1);
-      return mapLimit(list, 4, function (s) {
-        return yahoo(s[0] + ".IS", "1d", "15m").then(function (q) { q.t = s[0]; q.d = s[1]; q.turn = q.price * q.vol; return q; });
+      var extraSyms = PORTFOLIO.filter(function (x) { return x.type === "BIST"; }).map(function (x) { return x.sym; });
+      var baseSyms = CFG.stocks.slice(1).map(function (s) { return s[0]; });
+      var allSyms = baseSyms.concat(extraSyms).filter(function (v, i, a) { return a.indexOf(v) === i; });
+      return mapLimit(allSyms, 4, function (sym) {
+        var known = CFG.stocks.filter(function (s) { return s[0] === sym; })[0];
+        return yahoo(sym + ".IS", "1d", "15m").then(function (q) {
+          q.t = sym; q.d = known ? known[1] : sym; q.turn = q.price * q.vol; return q;
+        });
       }).then(function (st) {
         var valid = st.filter(Boolean);
-        var top = valid.slice().sort(function (a, b) { return b.turn - a.turn; }).slice(0, 5);
+        var top = valid.filter(function (x) { return baseSyms.indexOf(x.t) > -1; }).sort(function (a, b) { return b.turn - a.turn; }).slice(0, 5);
         S.bist = { index: idx, top: top.length ? top : ((S.bist && S.bist.top) || []), all: valid };
         S.times.bist = Date.now(); failed.bist = false; save();
       });
-    }).catch(function () { failed.bist = true; }).then(renderBist);
+    }).catch(function () { failed.bist = true; }).then(function () { renderBist(); renderPortfolio(); });
   }
 
   // Borsa Grafik Motoru
@@ -924,15 +932,9 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     SCH.loading = true; renderStockChart();
     return yahooRace(code + ".IS", rng, interval).then(function (res) {
       if (!res.pts || res.pts.length < 2) throw new Error("short pts");
-      SCH.loading = false;
-      SCH.pts = res.pts;
-      SCH.live = true;
-      renderStockChart();
+      SCH.loading = false; SCH.pts = res.pts; SCH.live = true; renderStockChart();
     }).catch(function () {
-      SCH.loading = false;
-      SCH.pts = synthStockSeries(code, rng);
-      SCH.live = false;
-      renderStockChart();
+      SCH.loading = false; SCH.pts = synthStockSeries(code, rng); SCH.live = false; renderStockChart();
     });
   }
   function renderStockChart() {
@@ -1098,7 +1100,7 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
       METALS.forEach(function (m, i) { if (r[i]) { out[m[0]] = r[i]; ok++; } });
       if (!ok) throw new Error("none");
       S.mnow = out; S.times.mnow = Date.now(); failed.mnow = false; save();
-    }).catch(function () { failed.mnow = true; }).then(renderTiles);
+    }).catch(function () { failed.mnow = true; }).then(function () { renderTiles(); renderPortfolio(); });
   }
   function renderTiles() {
     var N = S.mnow || {};
@@ -1173,7 +1175,7 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     if (u && u.children) for (var j = 0; j < u.children.length; j++) u.children[j].className = u.children[j].getAttribute("data-v") === UI.unit ? "on" : "";
   }
 
-  // ---------- Ekonomi: Kritik İstihbarat, Enflasyon, Konut & Araç ----------
+  // ---------- Ekonomi ----------
   var INF_GEO = null;
   function renderIntel() {
     var m = S.mnow || {};
@@ -1183,33 +1185,18 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     var ratioNote = ratio > 85
       ? "Rasyo yüksek (" + fmt(ratio, 1) + "): tarihsel olarak altına kıyasla gümüşte oynaklık/yakalama potansiyeli öne çıkar."
       : "Rasyo dengeli (" + fmt(ratio, 1) + "): değerli metallerde dengeli seyrin korunduğunu gösterir.";
-
     var items = [
-      {
-        b: "Altın / Gümüş Rasyosu: " + fmt(ratio, 1) + "x",
-        p: ratioNote
-      },
-      {
-        b: "Dezenflasyon & Reel Getiri Dengesi (%29,77 TÜFE)",
-        p: "Yıllık enflasyon 12 ayda %47'lerden %29,77'ye geriledi; ancak aylık %2,58'lik hız ve %31,23 kira artış tavanı, nakit/sabit getiride vergi ve reel getiri hesabını kritik hale getiriyor."
-      },
-      {
-        b: "Konut vs. Kira Amortismanı (İstanbul & Muğla)",
-        p: "İstanbul'da m² ortalaması ~68.924 ₺ ve amortisman süresi ~13 yıl bandında; yüksek faiz ortamında kredi maliyeti ile kira getirisi arasındaki fark seçici il/ilçe analizini zorunlu kılıyor."
-      },
-      {
-        b: "Sıfır Araç Kampanya Makası",
-        p: "Giriş ve B/C segmentinde distribütör kampanyaları liste fiyatına göre %3 ile %22 arasında indirim/finansman avantajı sunarken, elektrikli ve hibrit modellerde ÖTV dilimi eşikleri fiyatı doğrudan belirliyor."
-      }
+      { b: "Altın / Gümüş Rasyosu: " + fmt(ratio, 1) + "x", p: ratioNote },
+      { b: "Dezenflasyon & Reel Getiri Dengesi (%29,77 TÜFE)", p: "Yıllık enflasyon 12 ayda %47'lerden %29,77'ye geriledi; ancak aylık %2,58'lik hız ve %31,23 kira artış tavanı, nakit/sabit getiride vergi ve reel getiri hesabını kritik hale getiriyor." },
+      { b: "Konut vs. Kira Amortismanı (İstanbul & Muğla)", p: "İstanbul'da m² ortalaması ~68.924 ₺ ve amortisman süresi ~13 yıl bandında; yüksek faiz ortamında kredi maliyeti ile kira getirisi arasındaki fark seçici il/ilçe analizini zorunlu kılıyor." },
+      { b: "Sıfır Araç Kampanya Makası", p: "Giriş ve B/C segmentinde distribütör kampanyaları liste fiyatına göre %3 ile %22 arasında indirim/finansman avantajı sunarken, elektrikli ve hibrit modellerde ÖTV dilimi eşikleri fiyatı doğrudan belirliyor." }
     ];
     $("intel-list").innerHTML = items.map(function (it) {
       return '<div class="intel-box"><b>' + esc(it.b) + '</b><p>' + esc(it.p) + '</p></div>';
     }).join("");
   }
-
   function renderEconomy() {
     renderIntel();
-
     var pts = INFLATION_DATA;
     var vs = pts.map(function (p) { return p.y; }), mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
     var lo = mn - 3, hi = mx + 3, W = 340, H = 160, pl = 6, pr = 6, pt = 12, pb = 22;
@@ -1228,18 +1215,14 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
       '<circle id="icd" cx="' + X(vs.length - 1).toFixed(1) + '" cy="' + Y(vs[vs.length - 1]).toFixed(1) + '" r="3.8" fill="var(--accent)"/>' +
       '<text class="ct" x="' + pl + '" y="' + (H - 6) + '">' + pts[0].m + '</text><text class="ct" text-anchor="end" x="' + (W - pr) + '" y="' + (H - 6) + '">' + pts[pts.length - 1].m + "</text></svg>";
     INF_GEO = { W: W, pl: pl, pr: pr, n: vs.length, X: X, Y: Y, vs: vs };
-
     renderHousing();
     renderCars();
   }
-
   function renderHousing() {
     var qEl = $("city-q"), query = qEl ? qEl.value.trim().toLocaleLowerCase("tr-TR") : "";
     var hs = $("house-sort");
     if (hs && hs.children) for (var i = 0; i < hs.children.length; i++) hs.children[i].className = "chip" + (hs.children[i].getAttribute("data-v") === UI.hsort ? " on" : "");
-    var list = HOUSING_DATA.filter(function (x) {
-      return !query || x.city.toLocaleLowerCase("tr-TR").indexOf(query) > -1;
-    }).slice();
+    var list = HOUSING_DATA.filter(function (x) { return !query || x.city.toLocaleLowerCase("tr-TR").indexOf(query) > -1; }).slice();
     list.sort(function (a, b) { return b[UI.hsort] - a[UI.hsort]; });
     var maxM2 = 75000;
     $("house-list").innerHTML = list.length ? list.map(function (h) {
@@ -1252,7 +1235,6 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
         '<span class="chg ' + (realChg >= 0 ? "up" : "flat") + ' num">Yıllık +' + fmt(h.chg, 1) + '%</span></div></div>';
     }).join("") : '<div class="empty">Eşleşen il bulunamadı.</div>';
   }
-
   function renderCars() {
     var cc = $("car-cats");
     if (cc && cc.children) for (var i = 0; i < cc.children.length; i++) cc.children[i].className = "chip" + (cc.children[i].getAttribute("data-v") === UI.ccat ? " on" : "");
@@ -1264,14 +1246,14 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     }).join("");
   }
 
-  // ---------- Spor (ESPN + Çoklu Proxy + Sezon Yedeği) ----------
+  // ---------- Spor (Sadece Canlı ESPN — Eski Yedek Yok) ----------
   function loadSports(lg) {
     lg = lg || UI.league;
     var sbUrl = "https://site.api.espn.com/apis/site/v2/sports/soccer/" + lg + "/scoreboard";
     var stUrl = "https://site.api.espn.com/apis/site/v2/sports/soccer/" + lg + "/standings";
     return Promise.all([
-      getJSON([sbUrl, "https://corsproxy.io/?url=" + enc(sbUrl), "https://api.allorigins.win/raw?url=" + enc(sbUrl)], 5500).catch(function () { return null; }),
-      getJSON([stUrl, "https://corsproxy.io/?url=" + enc(stUrl), "https://api.allorigins.win/raw?url=" + enc(stUrl)], 5500).catch(function () { return null; })
+      getJSON([sbUrl, "https://corsproxy.io/?url=" + enc(sbUrl), "https://api.allorigins.win/raw?url=" + enc(sbUrl)], 6500).catch(function () { return null; }),
+      getJSON([stUrl, "https://corsproxy.io/?url=" + enc(stUrl), "https://api.allorigins.win/raw?url=" + enc(stUrl)], 6500).catch(function () { return null; })
     ]).then(function (r) {
       var matches = [], table = [];
       if (r[0] && r[0].events) {
@@ -1316,9 +1298,6 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
       S.times["sp_" + lg] = Date.now(); failed["sp_" + lg] = false; save();
     }).catch(function () {
       failed["sp_" + lg] = true;
-      if (!S.sports[lg] && SPORTS_FALLBACK[lg]) {
-        S.sports[lg] = { matches: SPORTS_FALLBACK[lg].matches, table: SPORTS_FALLBACK[lg].table, t: Date.now(), live: false };
-      }
     }).then(function () {
       renderSports();
       if (lg === "tur.1") renderHomeSports();
@@ -1342,19 +1321,19 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
   }
 
   function renderSports() {
-    var lg = UI.league, d = S.sports[lg] || SPORTS_FALLBACK[lg];
+    var lg = UI.league, d = S.sports[lg];
     $("leagues").innerHTML = LEAGUES.map(function (l) {
       return '<button class="chip' + (l[0] === lg ? " on" : "") + '" data-act="league" data-v="' + l[0] + '">' + l[1] + "</button>";
     }).join("");
     var lgName = (LEAGUES.filter(function (l) { return l[0] === lg; })[0] || [0, ""])[1];
     $("sp-title").textContent = lgName + " · Maçlar & Fikstür";
     var g = "sp_" + lg, t = d && d.t;
-    if (d && d.live) setMeta("m-sports", "canlı · " + hhmm(t), "ok");
-    else setMeta("m-sports", "sezon verisi", "ok");
+    if (d && d.live) setMeta("m-sports", (failed[g] ? "önbellek · " : "canlı · ") + hhmm(t), "ok");
+    else setMeta("m-sports", failed[g] ? "alınamadı" : "yükleniyor…", failed[g] ? "bad" : "");
 
     $("sp-matches").innerHTML = (d && d.matches && d.matches.length)
       ? d.matches.map(matchHTML).join("")
-      : '<div class="empty">Maç bulunamadı.</div>';
+      : '<div class="empty">' + (failed[g] ? "Güncel maç verisi şu an alınamadı. Yenile butonuna basmayı deneyin." : "Yükleniyor…") + "</div>";
 
     if (d && d.table && d.table.length) {
       $("sp-table").innerHTML = '<table class="tbl"><thead><tr><th>#</th><th>Takım</th><th class="c">O</th><th class="c">G</th><th class="c">B</th><th class="c">M</th><th class="c">AV</th><th class="c">P</th></tr></thead><tbody>' +
@@ -1364,14 +1343,16 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
             '<td class="c num">' + r.gp + '</td><td class="c num">' + r.w + '</td><td class="c num">' + r.d + '</td><td class="c num">' + r.l + '</td>' +
             '<td class="c num">' + (r.gd > 0 ? "+" + r.gd : r.gd) + '</td><td class="c num"><b>' + r.pts + '</b></td></tr>';
         }).join("") + '</tbody></table>';
+    } else {
+      $("sp-table").innerHTML = '<div class="empty">' + (failed[g] ? "Güncel puan durumu şu an alınamadı." : "Yükleniyor…") + "</div>";
     }
   }
 
   function renderHomeSports() {
-    var d = S.sports["tur.1"] || SPORTS_FALLBACK["tur.1"];
+    var d = S.sports["tur.1"];
     $("h-sports").innerHTML = (d && d.matches && d.matches.length)
       ? d.matches.slice(0, 3).map(matchHTML).join("")
-      : '<div class="empty">Yükleniyor…</div>';
+      : '<div class="empty">' + (failed["sp_tur.1"] ? "Güncel maç verisi alınamadı." : "Yükleniyor…") + "</div>";
   }
 
   // ---------- Dokunmatik Grafik Etkileşimi (Scrub) ----------
@@ -1475,10 +1456,19 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     save();
     if (typeof window.scrollTo === "function") window.scrollTo(0, 0);
     if (t === "economy") renderEconomy();
+    if (t === "assets") renderPortfolio();
     refresh(false);
   }
   var ACT = {
     tab: function (d) { setTab(d.v); },
+    pfdel: function (d) {
+      var idx = +d.i;
+      if (idx >= 0 && idx < PORTFOLIO.length) {
+        PORTFOLIO.splice(idx, 1);
+        savePortfolio();
+        renderPortfolio();
+      }
+    },
     day: function (d) { var i = +d.i; UI.day = UI.day === i ? null : i; renderWeather(); },
     pick: function (d) { var r = RES[+d.i]; if (r) pickLoc({ name: r.name, region: r.region, cc: r.cc, lat: r.lat, lon: r.lon }); },
     recent: function (d) { var r = S.recent[+d.i]; if (r) pickLoc(r); },
@@ -1503,6 +1493,23 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     var t = e.target && e.target.closest ? e.target.closest("[data-act]") : null;
     if (t && t.dataset && ACT[t.dataset.act]) ACT[t.dataset.act](t.dataset);
   });
+  $("pf-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var type = $("pf-type").value;
+    var sym = $("pf-sym").value.trim().toUpperCase();
+    var name = $("pf-name").value.trim();
+    var qty = parseFloat($("pf-qty").value);
+    var cost = parseFloat($("pf-cost").value) || 0;
+    if (!sym || !(qty > 0)) return;
+    PORTFOLIO.push({ type: type, sym: sym, name: name, qty: qty, cost: cost });
+    savePortfolio();
+    renderPortfolio();
+    $("pf-sym").value = "";
+    $("pf-name").value = "";
+    $("pf-qty").value = "";
+    $("pf-cost").value = "";
+    if (type === "BIST") loadBist();
+  });
   document.addEventListener("input", function (e) {
     if (e.target && e.target.id === "q") { clearTimeout(qTimer); var v = e.target.value.trim(); qTimer = setTimeout(function () { search(v); }, 350); }
     if (e.target && e.target.id === "city-q") { renderHousing(); }
@@ -1516,7 +1523,7 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     crypto: { every: 60, fn: loadCrypto, on: ["home"] },
     metals: { every: 120, fn: loadMetals, on: ["home"] },
     cur: { every: 600, fn: loadCur, on: ["home", "assets"] },
-    bist: { every: 120, fn: loadBist, on: ["home"] },
+    bist: { every: 120, fn: loadBist, on: ["home", "assets"] },
     schart: { every: 600, fn: loadStockChart, on: ["assets"] },
     mnow: { every: 600, fn: loadMetalsNow, on: ["assets"] },
     chart: { every: 3600, fn: loadChart, on: ["assets"] },
@@ -1538,6 +1545,7 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-heigh
     Promise.all(jobs).then(function () { busy = false; $("refresh").className = ""; stamp(); });
   }
 
+  renderPortfolio();
   renderWeather(); renderRecent(); renderBist(); renderCrypto(); renderCur(); renderFx();
   renderTiles(); renderChart(); renderStockChart(); renderEconomy(); renderSports(); renderHomeSports();
   renderNews(); renderHomeNews(); stamp(); tick();
