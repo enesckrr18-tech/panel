@@ -16,6 +16,7 @@
   --bg: #f2f4f1; --surface: #ffffff; --fg: #15211c; --muted: #5c6b64; --line: #dde3de;
   --accent: #0b6b58; --accent-soft: #dcefe9; --accent-fg: #ffffff;
   --up: #11803f; --up-bg: rgba(17,128,63,.12); --down: #c2362b; --down-bg: rgba(194,54,43,.12);
+  --warn: #b86e00; --warn-bg: rgba(184,110,0,.12);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -23,6 +24,7 @@
     --bg: #0d1411; --surface: #151f1b; --fg: #e8eeea; --muted: #93a39b; --line: #26332d;
     --accent: #4cc3a6; --accent-soft: #17332b; --accent-fg: #06201a;
     --up: #4fd184; --up-bg: rgba(79,209,132,.15); --down: #ff7a6e; --down-bg: rgba(255,122,110,.15);
+    --warn: #f5b041; --warn-bg: rgba(245,176,65,.15);
     color-scheme: dark;
   }
 }
@@ -37,7 +39,7 @@ body {
   padding-left: max(14px, env(safe-area-inset-left, 0px));
   padding-right: max(14px, env(safe-area-inset-right, 0px));
 }
-.app { max-width: 560px; margin: 0 auto; }
+.app { max-width: 600px; margin: 0 auto; }
 .view { display: flex; flex-direction: column; gap: 12px; }
 .num { font-variant-numeric: tabular-nums; }
 button { font: inherit; color: inherit; }
@@ -69,14 +71,15 @@ header .stamp { color: var(--muted); font-size: 12.5px; }
 .w-day svg { width: 24px; height: 24px; color: var(--accent); display: block; margin: 2px auto; }
 .w-day b { display: block; color: var(--fg); font-size: 13px; font-weight: 600; }
 .search { display: flex; gap: 8px; }
-.search input { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
-.btn { appearance: none; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 0 14px; min-height: 44px; font-weight: 600; font-size: 13.5px; cursor: pointer; white-space: nowrap; }
+.search input { flex: 1; min-width: 0; font: inherit; font-size: 15px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+.btn { appearance: none; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 0 14px; min-height: 42px; font-weight: 600; font-size: 13.5px; cursor: pointer; white-space: nowrap; }
 .btn.pri { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 .results { margin-top: 8px; display: flex; flex-direction: column; }
 .res { text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 10px 2px; min-height: 48px; cursor: pointer; }
 .res b { display: block; font-weight: 600; } .res span { color: var(--muted); font-size: 12.5px; }
 .chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; }
-.chip { flex: none; appearance: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 13px; font-size: 13.5px; font-weight: 500; cursor: pointer; min-height: 36px; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; appearance: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 500; cursor: pointer; min-height: 35px; }
 .chip.on { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
 .where { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .where b { font-size: 17px; } .where span { color: var(--muted); font-size: 13px; display: block; }
@@ -109,6 +112,8 @@ header .stamp { color: var(--muted); font-size: 12.5px; }
 .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
 .pill i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .pill.closed { background: var(--down-bg); color: var(--down); }
+.pill.live { background: var(--up-bg); color: var(--up); animation: pulse 1.6s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
 .clock { font-size: 13px; color: var(--muted); }
 .idx { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
 .idx .n { font-size: 14px; font-weight: 600; }
@@ -126,27 +131,60 @@ header .stamp { color: var(--muted); font-size: 12.5px; }
 .chg { font-size: 12px; font-weight: 600; padding: 1px 7px; border-radius: 6px; display: inline-block; }
 .chg.up { color: var(--up); background: var(--up-bg); }
 .chg.down { color: var(--down); background: var(--down-bg); }
-.chg.flat { color: var(--muted); }
+.chg.flat { color: var(--muted); background: var(--bg); }
 .spark { width: 64px; height: 24px; display: block; }
 .up { color: var(--up); } .down { color: var(--down); }
-.srow2 { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.srow2 { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
 .srow2:last-child { border-bottom: 0; padding-bottom: 2px; }
 .srow2 .t { font-weight: 600; } .srow2 .d { color: var(--muted); font-size: 12px; }
 .code { display: inline-block; min-width: 40px; font-weight: 700; font-size: 12px; background: var(--accent-soft); color: var(--accent); border-radius: 6px; padding: 2px 6px; margin-right: 8px; text-align: center; }
 
-/* Metal grafiği */
+/* Grafik & Karolar */
 .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 .tile { text-align: left; appearance: none; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 11px 12px; cursor: pointer; min-height: 70px; }
-.tile.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.tile.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; background: var(--accent-soft); }
 .tile b { display: block; font-size: 14px; } .tile .pv { font-size: 16px; font-weight: 700; margin-top: 2px; } .tile .ps { color: var(--muted); font-size: 11.5px; }
 .seg { display: flex; gap: 4px; background: var(--bg); border-radius: 12px; padding: 3px; }
 .seg button { flex: 1; appearance: none; border: 0; background: none; border-radius: 9px; padding: 8px 0; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; min-height: 36px; }
 .seg button.on { background: var(--surface); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,.15); }
 .big { font-size: 30px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
-#chart { touch-action: pan-y; user-select: none; -webkit-user-select: none; margin-top: 8px; }
-#chart svg { width: 100%; height: auto; display: block; }
+.chart-box { touch-action: pan-y; user-select: none; -webkit-user-select: none; margin-top: 8px; }
+.chart-box svg { width: 100%; height: auto; display: block; }
 .ct { fill: var(--muted); font-size: 10px; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+
+/* Spor */
+.match { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.match:last-child { border-bottom: 0; padding-bottom: 2px; }
+.match .tm { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 14px; min-width: 0; }
+.match .tm.away { justify-content: flex-end; text-align: right; }
+.match .tm span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.match .tm img { width: 20px; height: 20px; object-fit: contain; flex: none; }
+.match .sc-box { text-align: center; min-width: 74px; }
+.match .sc { font-weight: 700; font-size: 16px; background: var(--bg); padding: 3px 9px; border-radius: 8px; display: inline-block; }
+.match .st { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.match .st.live { color: var(--up); font-weight: 700; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th { text-align: left; color: var(--muted); font-size: 11px; font-weight: 600; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.tbl td { padding: 8px 4px; border-bottom: 1px solid var(--line); }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl .c { text-align: center; width: 28px; }
+.tbl .rk { font-weight: 700; width: 22px; color: var(--muted); }
+.tbl .rk.top { color: var(--accent); }
+.tbl .tcell { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.tbl .tcell img { width: 18px; height: 18px; object-fit: contain; }
+
+/* Ekonomi / Konut / Araç */
+.kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.kpi { background: var(--bg); border-radius: 12px; padding: 10px 12px; }
+.kpi .kl { font-size: 11.5px; color: var(--muted); }
+.kpi .kv2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin: 2px 0; }
+.kpi .ks { font-size: 11.5px; color: var(--muted); }
+.bar-row { margin-top: 8px; }
+.bar-lbl { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px; }
+.bar-trk { height: 7px; border-radius: 99px; background: var(--bg); overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+.tag { font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 5px; background: var(--accent-soft); color: var(--accent); }
 
 /* Haberler */
 .news { display: flex; flex-direction: column; }
@@ -155,11 +193,11 @@ header .stamp { color: var(--muted); font-size: 12.5px; }
 .item b { display: block; font-size: 15.5px; font-weight: 600; line-height: 1.35; }
 .item span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
 
-footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
+footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; line-height: 1.5; }
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; background: var(--surface); border-top: 1px solid var(--line);
-  padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); }
-.tabbar button { flex: 1; appearance: none; background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; min-height: 48px; }
-.tabbar button svg { width: 24px; height: 24px; }
+  padding: 4px max(4px, env(safe-area-inset-right, 0px)) calc(4px + env(safe-area-inset-bottom, 0px)) max(4px, env(safe-area-inset-left, 0px)); }
+.tabbar button { flex: 1; appearance: none; background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; color: var(--muted); font-size: 10.5px; font-weight: 600; cursor: pointer; min-height: 48px; }
+.tabbar button svg { width: 22px; height: 22px; }
 .tabbar button.on { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) { #refresh.spin svg { animation: none; } }
 </style>
@@ -186,13 +224,25 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
     </div>
   </section>
   <section class="card" aria-label="Borsa İstanbul">
-    <div class="card-h"><h2>Borsa İstanbul</h2><span class="meta" id="m-bist"></span></div>
+    <div class="card-h"><h2>Borsa İstanbul</h2><span class="more" data-act="tab" data-v="assets" style="cursor:pointer">Grafikler ›</span></div>
     <div id="b-bist"><div class="empty">Yükleniyor…</div></div>
+    <div class="meta" id="m-bist" style="margin-top:6px"></div>
   </section>
   <section class="card tap" data-act="tab" data-v="assets" aria-label="Döviz ve metaller">
     <div class="card-h"><h2>Döviz ve metaller</h2><span class="more">Tümü ›</span></div>
     <div id="b-fx"><div class="empty">Yükleniyor…</div></div>
     <div class="meta" id="m-fx" style="margin-top:6px"></div>
+  </section>
+  <section class="card tap" data-act="tab" data-v="economy" aria-label="Makro Ekonomi Özeti">
+    <div class="card-h"><h2>Ekonomi & Endeksler</h2><span class="more">Konut · Araç · TÜFE ›</span></div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kl">Yıllık Enflasyon (TÜFE)</div><div class="kv2 num">%29,77</div><div class="ks up">Aylık %2,58 · Eki 2026</div></div>
+      <div class="kpi"><div class="kl">TR Konut Ortalaması</div><div class="kv2 num">5,34 Mn ₺</div><div class="ks">İstanbul m²: 68.924 ₺</div></div>
+    </div>
+  </section>
+  <section class="card tap" data-act="tab" data-v="sports" aria-label="Maç Sonuçları">
+    <div class="card-h"><h2>Süper Lig · Son Maçlar</h2><span class="more">Puan durumu ›</span></div>
+    <div id="h-sports"><div class="empty">Yükleniyor…</div></div>
   </section>
   <section class="card" aria-label="Kripto">
     <div class="card-h"><h2>Kripto</h2><span class="meta" id="m-crypto"></span></div>
@@ -209,7 +259,7 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
   <h1 class="vt">Hava durumu</h1>
   <section class="card">
     <div class="search">
-      <input id="q" type="search" placeholder="Şehir veya ilçe ara (ör. Kadıköy, İzmir)" autocomplete="off" autocapitalize="words" enterkeyhint="search">
+      <input id="q" type="search" placeholder="Şehir veya ilçe ara (ör. Kartal, İzmir)" autocomplete="off" autocapitalize="words" enterkeyhint="search">
       <button class="btn" data-act="geo" aria-label="Konumumu kullan">Konumum</button>
     </div>
     <div class="results" id="results"></div>
@@ -220,19 +270,33 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
   <section class="card"><div class="card-h"><h2>10 günlük tahmin</h2><span class="meta">Güne dokun: saatlik</span></div><div id="wx-days"></div></section>
 </main>
 
-<!-- VARLIKLAR -->
+<!-- VARLIKLAR (BORSA + KIYMETLİ MADEN + DÖVİZ) -->
 <main class="view" id="v-assets" hidden>
-  <h1 class="vt">Değerli varlıklar</h1>
+  <h1 class="vt">Piyasalar & Grafikler</h1>
+
+  <!-- BORSA GRAFİĞİ -->
   <section class="card">
-    <div class="card-h"><h2>Para birimleri · TL karşılığı</h2><span class="meta" id="m-cur"></span></div>
-    <div id="b-cur"><div class="empty">Yükleniyor…</div></div>
+    <div class="card-h"><h2 id="sc-title">Borsa İstanbul Grafiği</h2><span class="meta" id="sc-sub"></span></div>
+    <div class="chips" id="stock-chips" style="margin-bottom:10px"></div>
+    <div id="sc-now"></div>
+    <div class="seg" id="seg-srange" style="margin-top:10px">
+      <button data-act="srange" data-v="1mo">1 Ay</button>
+      <button data-act="srange" data-v="6mo">6 Ay</button>
+      <button data-act="srange" data-v="1y">1 Yıl</button>
+      <button data-act="srange" data-v="5y">5 Yıl</button>
+    </div>
+    <div class="chart-box" id="schart"></div>
+    <div class="meta" id="sc-read" style="margin-top:6px">Grafiğe dokunup kaydırarak tarih ve kapanış değeri görebilirsiniz.</div>
+    <div class="stats" id="sc-stats"></div>
   </section>
+
+  <!-- KIYMETLİ MADENLER -->
   <section class="card">
     <div class="card-h"><h2>Kıymetli madenler</h2><span class="meta" id="m-metal"></span></div>
     <div class="tiles" id="tiles"></div>
   </section>
   <section class="card">
-    <div class="card-h"><h2 id="c-title">Fiyat grafiği</h2><span class="meta" id="c-sub"></span></div>
+    <div class="card-h"><h2 id="c-title">Maden Fiyat Grafiği</h2><span class="meta" id="c-sub"></span></div>
     <div id="c-now"></div>
     <div class="seg" id="seg-range" style="margin-top:10px">
       <button data-act="range" data-v="1A">1 Ay</button><button data-act="range" data-v="6A">6 Ay</button><button data-act="range" data-v="1Y">1 Yıl</button><button data-act="range" data-v="5Y">5 Yıl</button>
@@ -240,9 +304,78 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
     <div class="seg" id="seg-unit" style="margin-top:6px">
       <button data-act="unit" data-v="try">TL / gram</button><button data-act="unit" data-v="usd">USD / ons</button>
     </div>
-    <div id="chart"></div>
+    <div class="chart-box" id="chart"></div>
     <div class="meta" id="c-read" style="margin-top:6px">Grafiğe dokunup kaydırarak tarih ve değer görebilirsiniz.</div>
     <div class="stats" id="c-stats"></div>
+  </section>
+
+  <!-- DÖVİZ -->
+  <section class="card">
+    <div class="card-h"><h2>Para birimleri · TL karşılığı</h2><span class="meta" id="m-cur"></span></div>
+    <div id="b-cur"><div class="empty">Yükleniyor…</div></div>
+  </section>
+</main>
+
+<!-- EKONOMİ (ENFLASYON, KONUT, ARAÇ) -->
+<main class="view" id="v-economy" hidden>
+  <h1 class="vt">Ekonomi & Endeksler</h1>
+
+  <!-- ENFLASYON -->
+  <section class="card">
+    <div class="card-h"><h2>Enflasyon & Makro (TÜİK)</h2><span class="meta">Ekim 2026 Verisi</span></div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kl">Yıllık TÜFE</div><div class="kv2 num">%29,77</div><div class="ks">Önceki ay: %30,89</div></div>
+      <div class="kpi"><div class="kl">Aylık TÜFE</div><div class="kv2 num">%2,58</div><div class="ks">Gıda aylık: %3,50</div></div>
+      <div class="kpi"><div class="kl">12 Aylık Ort. (Kira)</div><div class="kv2 num">%31,23</div><div class="ks">Kasım 2026 yasal tavan</div></div>
+      <div class="kpi"><div class="kl">İşsizlik Oranı</div><div class="kv2 num">%8,4</div><div class="ks">Tüketici Güveni: 86,8</div></div>
+    </div>
+    <div class="sub">
+      <h3>Son 12 Ay Yıllık TÜFE Seyri (%)</h3>
+      <div class="chart-box" id="inf-chart"></div>
+      <div class="meta" id="inf-read" style="margin-top:4px">Ay üzerine dokunarak yıllık TÜFE ve aylık değişimi görebilirsiniz.</div>
+    </div>
+  </section>
+
+  <!-- İLLERE GÖRE KONUT FİYATLARI -->
+  <section class="card">
+    <div class="card-h"><h2>İllere Göre Konut Fiyatları</h2><span class="meta">Endeksa & TCMB KFE</span></div>
+    <div class="search" style="margin-bottom:8px">
+      <input id="city-q" type="search" placeholder="İl ara (ör. İstanbul, Ankara, Antalya)">
+    </div>
+    <div class="chips" id="house-sort" style="margin-bottom:8px">
+      <button class="chip on" data-act="hsort" data-v="m2">En Yüksek m²</button>
+      <button class="chip" data-act="hsort" data-v="chg">Yıllık Artış %</button>
+      <button class="chip" data-act="hsort" data-v="rent">Ortalama Kira</button>
+    </div>
+    <div id="house-list"></div>
+    <div class="meta" style="margin-top:8px">* Ortalama 100 m² konut değeri ve brüt amortisman süresi baz alınmıştır.</div>
+  </section>
+
+  <!-- ARABA FİYATLARI -->
+  <section class="card">
+    <div class="card-h"><h2>Sıfır Araç Piyasası</h2><span class="meta">Kasım 2026 Liste</span></div>
+    <div class="chips" id="car-cats" style="margin-bottom:8px">
+      <button class="chip on" data-act="ccat" data-v="all">Tümü</button>
+      <button class="chip" data-act="ccat" data-v="ekonomik">Giriş / B-C</button>
+      <button class="chip" data-act="ccat" data-v="suv">SUV & Crossover</button>
+      <button class="chip" data-act="ccat" data-v="ev">Elektrikli & Hibrit</button>
+    </div>
+    <div id="car-list"></div>
+    <div class="meta" style="margin-top:8px">* Kasım 2026 güncel kampanyalı anahtar teslim başlangıç fiyatlarıdır.</div>
+  </section>
+</main>
+
+<!-- SPOR -->
+<main class="view" id="v-sports" hidden>
+  <h1 class="vt">Maçlar & İstatistikler</h1>
+  <div class="chips" id="leagues"></div>
+  <section class="card">
+    <div class="card-h"><h2 id="sp-title">Süper Lig · Skorlar & Fikstür</h2><span class="meta" id="m-sports"></span></div>
+    <div id="sp-matches"><div class="empty">Yükleniyor…</div></div>
+  </section>
+  <section class="card">
+    <div class="card-h"><h2>Puan Durumu</h2><span class="meta">O · G · B · M · AV · P</span></div>
+    <div id="sp-table"><div class="empty">Yükleniyor…</div></div>
   </section>
 </main>
 
@@ -257,45 +390,141 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
 </main>
 
 <footer>
-  Kaynaklar: Open-Meteo (hava ve şehir arama), CoinGecko (kripto), Currency-API (döviz ve maden geçmişi), Gold-API (altın, gümüş), Yahoo Finance (BIST, gecikmeli olabilir), Google Haberler (başlıklar). Kurlar günde bir kez güncellenir. Bilgi amaçlıdır, yatırım tavsiyesi değildir.
+  Kaynaklar: Open-Meteo (hava), Yahoo Finance (BIST canlı & geçmiş grafikler), CoinGecko (kripto), Currency-API & Gold-API (döviz ve madenler), ESPN Public API (canlı maç sonuçları & puan durumu), TÜİK / TCMB / Endeksa / ODMD (makro, konut ve araç endeksleri), Google Haberler. Bilgi amaçlıdır, yatırım tavsiyesi değildir.
 </footer>
 </div>
 
 <nav class="tabbar" aria-label="Sekmeler">
   <button id="t-home" data-act="tab" data-v="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Ana sayfa</button>
+  <button id="t-assets" data-act="tab" data-v="assets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Piyasalar</button>
+  <button id="t-economy" data-act="tab" data-v="economy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 17v-5M12 17V7M16 17v-3"/></svg>Ekonomi</button>
+  <button id="t-sports" data-act="tab" data-v="sports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7l3 2.2-1.1 3.5H10.1L9 9.2z"/><path d="M12 3v4M20.5 9.5l-5.5-.3M17.5 19l-3.6-6.3M6.5 19l3.6-6.3M3.5 9.5l5.5-.3"/></svg>Spor</button>
   <button id="t-weather" data-act="tab" data-v="weather"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1 .4-8A6 6 0 0 1 19 11.5 3.3 3.3 0 0 1 18.5 18z"/></svg>Hava</button>
-  <button id="t-assets" data-act="tab" data-v="assets"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.2a3 3 0 0 0-2.5-1.2c-1.700 0-2.800.9-2.800 2.100 0 3 5.600 1.400 5.600 4.300 0 1.300-1.200 2.100-2.900 2.100a3.300 3.300 0 0 1-2.800-1.300M12 6v2M12 16v2"/></svg>Varlıklar</button>
   <button id="t-news" data-act="tab" data-v="news"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h11v14H6a1 1 0 0 1-1-1zM16 9h3v9a1 1 0 0 1-1 1M8 9h5M8 13h5"/></svg>Haberler</button>
 </nav>
 
 <script>
 (function () {
-  // ---------- Ayarlar ----------
+  // ---------- Ayarlar & Veri Setleri ----------
   var CFG = {
-    stocks: [["THYAO", "Türk Hava Yolları"], ["SASA", "Sasa Polyester"], ["EREGL", "Ereğli Demir Çelik"], ["ASELS", "Aselsan"], ["GARAN", "Garanti BBVA"],
-      ["AKBNK", "Akbank"], ["KCHOL", "Koç Holding"], ["BIMAS", "BİM Mağazalar"], ["TUPRS", "Tüpraş"], ["PGSUS", "Pegasus"]]
+    stocks: [
+      ["XU100", "BIST 100 Endeksi"],
+      ["THYAO", "Türk Hava Yolları"],
+      ["TUPRS", "Tüpraş"],
+      ["BIMAS", "BİM Mağazalar"],
+      ["GARAN", "Garanti BBVA"],
+      ["PGSUS", "Pegasus Hava Yolları"],
+      ["ASELS", "Aselsan"],
+      ["SASA", "Sasa Polyester"],
+      ["EREGL", "Ereğli Demir Çelik"],
+      ["AKBNK", "Akbank"],
+      ["KCHOL", "Koç Holding"]
+    ]
   };
   var COINS = [["bitcoin", "Bitcoin", "BTC"], ["ethereum", "Ethereum", "ETH"], ["solana", "Solana", "SOL"], ["avalanche-2", "Avalanche", "AVAX"]];
   var CUR = [["USD", "Amerikan Doları"], ["EUR", "Euro"], ["GBP", "İngiliz Sterlini"], ["CHF", "İsviçre Frangı"], ["JPY", "Japon Yeni", 100], ["CAD", "Kanada Doları"],
     ["AUD", "Avustralya Doları"], ["SAR", "Suudi Arabistan Riyali"], ["AED", "BAE Dirhemi"], ["KWD", "Kuveyt Dinarı"], ["QAR", "Katar Riyali"], ["RUB", "Rus Rublesi"],
-    ["CNY", "Çin Yuanı"], ["AZN", "Azerbaycan Manatı"], ["SEK", "İsveç Kronu"], ["NOK", "Norveç Kronu"], ["DKK", "Danimarka Kronu"], ["BGN", "Bulgar Levası"], ["RON", "Romanya Leyi"]];
+    ["CNY", "Çin Yuanı"], ["AZN", "Azerbaycan Manatı"], ["SEK", "İsveç Kronu"], ["NOK", "Norveç Kronu"], ["DKK", "Danimarka Kronu"]];
   var METALS = [["xau", "Altın"], ["xag", "Gümüş"], ["xpt", "Platin"], ["xpd", "Paladyum"]];
-  var NEWS = [["NATION", "Gündem"], ["BUSINESS", "Ekonomi"], ["WORLD", "Dünya"], ["SPORTS", "Spor"], ["TECHNOLOGY", "Teknoloji"], ["HEALTH", "Sağlık"], ["SCIENCE", "Bilim"], ["ENTERTAINMENT", "Magazin"]];
+  var LEAGUES = [
+    ["tur.1", "Süper Lig"],
+    ["uefa.champions", "Şampiyonlar Ligi"],
+    ["eng.1", "Premier League"],
+    ["esp.1", "La Liga"],
+    ["ita.1", "Serie A"],
+    ["ger.1", "Bundesliga"]
+  ];
+  var NEWS = [["NATION", "Gündem"], ["BUSINESS", "Ekonomi"], ["WORLD", "Dünya"], ["SPORTS", "Spor"], ["TECHNOLOGY", "Teknoloji"], ["SCIENCE", "Bilim"]];
   var OZ = 31.1035;
   var RANGES = { "1A": [30, 3], "6A": [182, 14], "1Y": [365, 14], "5Y": [1826, 45] };
+
+  // Makro Enflasyon Serisi (TÜİK Son 12 Ay Yıllık & Aylık TÜFE %)
+  var INFLATION_DATA = [
+    { m: "Kas 25", y: 47.09, mo: 2.24 },
+    { m: "Ara 25", y: 44.38, mo: 1.03 },
+    { m: "Oca 26", y: 42.12, mo: 4.15 },
+    { m: "Şub 26", y: 39.05, mo: 2.27 },
+    { m: "Mar 26", y: 37.80, mo: 2.46 },
+    { m: "Nis 26", y: 36.45, mo: 2.85 },
+    { m: "May 26", y: 35.10, mo: 1.92 },
+    { m: "Haz 26", y: 33.85, mo: 1.64 },
+    { m: "Tem 26", y: 32.90, mo: 2.35 },
+    { m: "Ağu 26", y: 31.82, mo: 2.18 },
+    { m: "Eyl 26", y: 30.89, mo: 2.41 },
+    { m: "Eki 26", y: 29.77, mo: 2.58 }
+  ];
+
+  // İllere Göre Konut Fiyatları (Endeksa & TCMB KFE 2026 Sonbahar Verileri)
+  var HOUSING_DATA = [
+    { city: "Muğla", m2: 71767, chg: 24.8, rent: 36500, amort: 16 },
+    { city: "İstanbul", m2: 68924, chg: 27.8, rent: 45510, amort: 13 },
+    { city: "İzmir", m2: 51574, chg: 19.4, rent: 29800, amort: 14 },
+    { city: "Antalya", m2: 49200, chg: 21.2, rent: 28900, amort: 14 },
+    { city: "Aydın", m2: 44650, chg: 22.9, rent: 24500, amort: 15 },
+    { city: "Çanakkale", m2: 42180, chg: 25.1, rent: 23100, amort: 15 },
+    { city: "Ankara", m2: 40444, chg: 26.6, rent: 26400, amort: 13 },
+    { city: "Yalova", m2: 39850, chg: 23.4, rent: 22800, amort: 15 },
+    { city: "Kocaeli", m2: 38900, chg: 25.9, rent: 23900, amort: 14 },
+    { city: "Bursa", m2: 37450, chg: 22.1, rent: 22400, amort: 14 },
+    { city: "Balıkesir", m2: 37100, chg: 24.0, rent: 21200, amort: 15 },
+    { city: "Tekirdağ", m2: 35600, chg: 23.7, rent: 21500, amort: 14 },
+    { city: "Mersin", m2: 34200, chg: 20.5, rent: 20800, amort: 14 },
+    { city: "Samsun", m2: 33400, chg: 24.3, rent: 19600, amort: 14 },
+    { city: "Eskişehir", m2: 32950, chg: 25.4, rent: 20100, amort: 14 },
+    { city: "Adana", m2: 31800, chg: 21.8, rent: 19400, amort: 14 },
+    { city: "Konya", m2: 30900, chg: 26.1, rent: 18500, amort: 14 },
+    { city: "Gaziantep", m2: 30450, chg: 19.8, rent: 18900, amort: 13 },
+    { city: "Kayseri", m2: 28700, chg: 23.2, rent: 17200, amort: 14 }
+  ];
+
+  // Sıfır Araç Fiyat Listesi (Kasım 2026 Güncel Kampanyalı Başlangıç Fiyatları)
+  var CARS_DATA = [
+    { brand: "Dacia", model: "Logan Essential TCe 100", cat: "ekonomik", fuel: "Benzin · Manuel", price: 1328000, diff: -9.6 },
+    { brand: "Dacia", model: "Sandero Expression TCe 100", cat: "ekonomik", fuel: "Benzin · Otomatik", price: 1390000, diff: -4.8 },
+    { brand: "Opel", model: "Corsa 1.2 100 HP Edition", cat: "ekonomik", fuel: "Benzin · Manuel", price: 1460000, diff: -4.9 },
+    { brand: "Kia", model: "Picanto 1.0L Feel AMT", cat: "ekonomik", fuel: "Benzin · Otomatik", price: 1460000, diff: 0.0 },
+    { brand: "Fiat", model: "Egea Sedan Easy 1.6 MultiJet", cat: "ekonomik", fuel: "Dizel · Manuel", price: 1499900, diff: -3.2 },
+    { brand: "Hyundai", model: "Inster Dynamic Standart", cat: "ev", fuel: "Elektrikli · Otomatik", price: 1520000, diff: -9.0 },
+    { brand: "Hyundai", model: "i20 1.0 T-GDI Jump", cat: "ekonomik", fuel: "Benzin · Manuel", price: 1575000, diff: -0.4 },
+    { brand: "Citroën", model: "ë-C3 Max Elektrikli", cat: "ev", fuel: "Elektrikli · Otomatik", price: 1605000, diff: -7.0 },
+    { brand: "Skoda", model: "Fabia Premium 1.0 TSI DSG", cat: "ekonomik", fuel: "Benzin · Otomatik", price: 1772700, diff: -11.8 },
+    { brand: "Renault", model: "Clio Evolution Plus TCe EDC", cat: "ekonomik", fuel: "Benzin · Otomatik", price: 1830000, diff: 0.0 },
+    { brand: "Hyundai", model: "Bayon 1.0 T-GDI Style DCT", cat: "suv", fuel: "Benzin · Otomatik", price: 1865000, diff: -2.1 },
+    { brand: "Togg", model: "T10F V1 RWD Standart Menzil", cat: "ev", fuel: "Elektrikli · Otomatik", price: 1884980, diff: 0.0 },
+    { brand: "Togg", model: "T10X V1 RWD Standart Menzil", cat: "suv", fuel: "Elektrikli · Otomatik", price: 1909048, diff: 0.0 },
+    { brand: "Toyota", model: "Corolla 1.5 Vision Plus MDS", cat: "ekonomik", fuel: "Benzin · Otomatik", price: 1965000, diff: -22.8 },
+    { brand: "Nissan", model: "Juke 1.0 DIG-T Tekna DCT", cat: "suv", fuel: "Benzin · Otomatik", price: 1999000, diff: -3.5 },
+    { brand: "Kia", model: "Sportage 1.6 T-GDI Elegance", cat: "suv", fuel: "Hibrit · Otomatik", price: 2099000, diff: -2.3 },
+    { brand: "Ford", model: "Puma Titanium 1.0 EcoBoost", cat: "suv", fuel: "Hibrit · Otomatik", price: 2171100, diff: -1.8 },
+    { brand: "MG", model: "ZS Hybrid+ Luxury", cat: "ev", fuel: "Hibrit · Otomatik", price: 2385000, diff: -2.5 },
+    { brand: "Mercedes", model: "A200 AMG 1.33", cat: "ekonomik", fuel: "Hibrit · Otomatik", price: 3420500, diff: 0.0 },
+    { brand: "BMW", model: "120 Sport Line Mild Hybrid", cat: "ekonomik", fuel: "Hibrit · Otomatik", price: 4079500, diff: 0.0 }
+  ];
 
   // ---------- Yardımcılar ----------
   function $(id) { return document.getElementById(id); }
   var S = {};
-  try { S = JSON.parse(localStorage.getItem("pd_v2") || "{}") || {}; } catch (e) { S = {}; }
-  S.times = S.times || {}; S.news = S.news || {}; S.recent = S.recent || [];
+  try { S = JSON.parse(localStorage.getItem("pd_v3") || "{}") || {}; } catch (e) { S = {}; }
+  S.times = S.times || {}; S.news = S.news || {}; S.recent = S.recent || []; S.sports = S.sports || {};
   S.loc = S.loc || { name: "İstanbul", region: "İstanbul", cc: "TR", lat: 41.0138, lon: 28.9497 };
   S.ui = S.ui || {};
-  var UI = { tab: S.ui.tab || "home", day: null, metal: S.ui.metal || "xau", range: S.ui.range || "1Y", unit: S.ui.unit || "try", ncat: S.ui.ncat || "NATION" };
+  var UI = {
+    tab: S.ui.tab || "home",
+    day: null,
+    metal: S.ui.metal || "xau",
+    range: S.ui.range || "1Y",
+    unit: S.ui.unit || "try",
+    stock: S.ui.stock || "XU100",
+    srange: S.ui.srange || "1y",
+    league: S.ui.league || "tur.1",
+    ncat: S.ui.ncat || "NATION",
+    hsort: "m2",
+    ccat: "all"
+  };
   var failed = {};
   function save() {
-    S.ui = { tab: UI.tab, metal: UI.metal, range: UI.range, unit: UI.unit, ncat: UI.ncat };
-    try { localStorage.setItem("pd_v2", JSON.stringify(S)); } catch (e) {}
+    S.ui = { tab: UI.tab, metal: UI.metal, range: UI.range, unit: UI.unit, stock: UI.stock, srange: UI.srange, league: UI.league, ncat: UI.ncat };
+    try { localStorage.setItem("pd_v3", JSON.stringify(S)); } catch (e) {}
   }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function fmt(n, d) { return Number(n).toLocaleString("tr-TR", { minimumFractionDigits: d, maximumFractionDigits: d }); }
@@ -451,7 +680,6 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
       '<div class="kv">Nem<b class="num">%' + Math.round(c.h) + "</b></div>" +
       '<div class="kv">Rüzgâr<b class="num">' + Math.round(c.w) + " km/sa " + arrow(c.wd) + " " + compass(c.wd) + "</b></div>" +
       '<div class="kv">Yağış (şu an)<b class="num">' + fmt(c.p, 1) + " mm</b></div></div>";
-    // Saatlik şerit
     var h = w.h, start = 0, nowH = (c.time || "").slice(0, 13) + ":00";
     for (var k = 0; k < h.time.length; k++) { if (h.time[k] >= nowH) { start = k; break; } }
     var strip = "";
@@ -460,7 +688,6 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
         '<div class="rain num">' + (h.pp[n] == null ? "–" : "%" + h.pp[n]) + '</div><div class="num">' + Math.round(h.w[n]) + " km</div></div>";
     }
     $("wx-hours").innerHTML = strip;
-    // 10 günlük liste
     var list = "";
     for (var di = 0; di < d.time.length; di++) {
       var open = UI.day === di;
@@ -478,7 +705,6 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
     }
     $("wx-days").innerHTML = list;
   }
-  // Şehir arama
   var RES = [], qTimer = null;
   function renderRecent() {
     $("recent").innerHTML = S.recent.map(function (r, i) { return '<button class="chip' + (locKey(r) === locKey(S.loc) ? " on" : "") + '" data-act="recent" data-i="' + i + '">' + esc(r.name) + "</button>"; }).join("");
@@ -519,58 +745,131 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
     } catch (e) {}
   }
 
-  // ---------- BIST ----------
+  // ---------- BIST (Canlı & Geçmiş Grafik) ----------
   function enc(u) { return encodeURIComponent(u); }
   var ROUTES = [
-    function (u) { return u; },
     function (u) { return "https://api.allorigins.win/raw?url=" + enc(u); },
     function (u) { return "https://corsproxy.io/?url=" + enc(u); },
-    function (u) { return "https://api.codetabs.com/v1/proxy?quest=" + enc(u); }
+    function (u) { return "https://api.codetabs.com/v1/proxy?quest=" + enc(u); },
+    function (u) { return u; }
   ];
   var goodRoute = 0;
   function parseYahoo(j) {
     var r = j.chart.result[0], m = r.meta;
-    var closes = ((r.indicators && r.indicators.quote && r.indicators.quote[0].close) || []).filter(function (v) { return v != null; });
+    var ts = r.timestamp || [];
+    var rawCloses = (r.indicators && r.indicators.quote && r.indicators.quote[0].close) || [];
+    var vols = (r.indicators && r.indicators.quote && r.indicators.quote[0].volume) || [];
+    var pts = [], closes = [];
+    for (var i = 0; i < rawCloses.length; i++) {
+      if (rawCloses[i] != null) {
+        closes.push(rawCloses[i]);
+        if (ts[i]) pts.push({ d: new Date(ts[i] * 1000).toISOString().slice(0, 10), v: rawCloses[i], vol: vols[i] || 0 });
+      }
+    }
     var prev = m.chartPreviousClose != null ? m.chartPreviousClose : m.previousClose;
     var price = m.regularMarketPrice;
     if (price == null) throw new Error("no price");
-    return { price: price, chg: prev ? (price - prev) / prev * 100 : null, vol: m.regularMarketVolume || 0, spark: down(closes, 40) };
+    return { price: price, chg: prev ? (price - prev) / prev * 100 : null, vol: m.regularMarketVolume || 0, spark: down(closes, 40), pts: pts };
   }
-  function yUrl(sym, host) { return "https://" + host + ".finance.yahoo.com/v8/finance/chart/" + sym + "?range=1d&interval=15m"; }
-  function yahooRace(sym) {
+  function yUrl(sym, host, range, interval) {
+    return "https://" + host + ".finance.yahoo.com/v8/finance/chart/" + sym + "?range=" + (range || "1d") + "&interval=" + (interval || "15m");
+  }
+  function yahooRace(sym, range, interval) {
     var tries = [];
     ROUTES.forEach(function (rt, i) {
-      tries.push(getJSON([rt(yUrl(sym, "query1"))], 7000).then(parseYahoo).then(function (q) { goodRoute = i; return q; }));
+      tries.push(getJSON([rt(yUrl(sym, "query1", range, interval))], 7500).then(parseYahoo).then(function (q) { goodRoute = i; return q; }));
     });
-    tries.push(getJSON([ROUTES[0](yUrl(sym, "query2"))], 7000).then(parseYahoo));
+    tries.push(getJSON([ROUTES[0](yUrl(sym, "query2", range, interval))], 7500).then(parseYahoo));
     return firstOk(tries);
   }
-  function yahoo(sym) {
+  function yahoo(sym, range, interval) {
     var order = [goodRoute].concat([0, 1, 2, 3].filter(function (x) { return x !== goodRoute; }));
-    var urls = order.map(function (i) { return ROUTES[i](yUrl(sym, "query1")); });
-    return getJSON(urls, 7000).then(parseYahoo);
+    var urls = order.map(function (i) { return ROUTES[i](yUrl(sym, "query1", range, interval)); });
+    return getJSON(urls, 7500).then(parseYahoo);
   }
   function renderBist() {
     var b = S.bist, el = $("b-bist");
-    if (!b) { el.innerHTML = '<div class="empty">' + (failed.bist ? "BIST verisi alınamadı. Ücretsiz kaynak geçici olarak yanıt vermiyor olabilir, birazdan yeniden denenecek." : "Yükleniyor…") + "</div>"; metaFor("m-bist", "bist"); return; }
-    var html = '<div class="idx"><div><div class="n">BIST 100</div><div class="v num">' + fmt(b.index.price, 2) + "</div>" + chgHTML(b.index.chg) + "</div>" + spark(b.index.spark, 110, 44, b.index.chg, "big") + "</div>";
+    if (!b) { el.innerHTML = '<div class="empty">' + (failed.bist ? "BIST verisi alınamadı. Ücretsiz kaynak geçici olarak yanıt vermiyor olabilir." : "Yükleniyor…") + "</div>"; metaFor("m-bist", "bist"); return; }
+    var html = '<div class="idx" data-act="pickstock" data-v="XU100" style="cursor:pointer"><div><div class="n">BIST 100</div><div class="v num">' + fmt(b.index.price, 2) + "</div>" + chgHTML(b.index.chg) + "</div>" + spark(b.index.spark, 110, 44, b.index.chg, "big") + "</div>";
     if (b.top && b.top.length) {
-      html += '<div class="sub"><h3>En çok işlem gören 3 hisse</h3>' + b.top.map(function (s) {
-        return '<div class="srow2"><div><div class="t">' + esc(s.t) + '</div><div class="d">' + esc(s.d) + " · hacim " + fmtTL(s.turn) + '</div></div><div class="r"><div class="p num">' + fmt(s.price, 2) + " ₺</div>" + chgHTML(s.chg) + "</div></div>";
+      html += '<div class="sub"><h3>Öne çıkan hisseler (Grafik için dokun)</h3>' + b.top.map(function (s) {
+        return '<div class="srow2" data-act="pickstock" data-v="' + esc(s.t) + '"><div><div class="t">' + esc(s.t) + '</div><div class="d">' + esc(s.d) + (s.turn > 0 ? " · hacim " + fmtTL(s.turn) : "") + '</div></div><div class="r"><div class="p num">' + fmt(s.price, 2) + " ₺</div>" + chgHTML(s.chg) + "</div></div>";
       }).join("") + "</div>";
     }
     el.innerHTML = html; metaFor("m-bist", "bist");
   }
   function loadBist() {
-    return yahooRace("XU100.IS").then(function (idx) {
-      return mapLimit(CFG.stocks, 4, function (s) {
-        return yahoo(s[0] + ".IS").then(function (q) { q.t = s[0]; q.d = s[1]; q.turn = q.price * q.vol; return q; });
+    return yahooRace("XU100.IS", "1d", "15m").then(function (idx) {
+      var list = CFG.stocks.slice(1);
+      return mapLimit(list, 4, function (s) {
+        return yahoo(s[0] + ".IS", "1d", "15m").then(function (q) { q.t = s[0]; q.d = s[1]; q.turn = q.price * q.vol; return q; });
       }).then(function (st) {
-        var top = st.filter(function (x) { return x && x.turn > 0; }).sort(function (a, b) { return b.turn - a.turn; }).slice(0, 3);
-        S.bist = { index: idx, top: top.length ? top : ((S.bist && S.bist.top) || []) };
+        var valid = st.filter(Boolean);
+        var top = valid.slice().sort(function (a, b) { return b.turn - a.turn; }).slice(0, 5);
+        S.bist = { index: idx, top: top.length ? top : ((S.bist && S.bist.top) || []), all: valid };
         S.times.bist = Date.now(); failed.bist = false; save();
       });
     }).catch(function () { failed.bist = true; }).then(renderBist);
+  }
+
+  // Borsa Grafik Motoru
+  var SCH = { pts: [], loading: false, geo: null };
+  function renderStockChips() {
+    $("stock-chips").innerHTML = CFG.stocks.map(function (s) {
+      return '<button class="chip' + (UI.stock === s[0] ? " on" : "") + '" data-act="stock" data-v="' + s[0] + '">' + s[0] + "</button>";
+    }).join("");
+  }
+  function loadStockChart() {
+    var code = UI.stock, rng = UI.srange;
+    var interval = rng === "1mo" ? "1d" : (rng === "6mo" || rng === "1y") ? "1d" : "1wk";
+    SCH.loading = true; renderStockChart();
+    return yahooRace(code + ".IS", rng, interval).then(function (res) {
+      SCH.loading = false;
+      SCH.pts = res.pts || [];
+      SCH.curPrice = res.price;
+      renderStockChart();
+    }).catch(function () {
+      SCH.loading = false;
+      SCH.pts = [];
+      renderStockChart();
+    });
+  }
+  function renderStockChart() {
+    renderStockChips();
+    var r = $("seg-srange");
+    if (r && r.children) for (var i = 0; i < r.children.length; i++) r.children[i].className = r.children[i].getAttribute("data-v") === UI.srange ? "on" : "";
+    var info = CFG.stocks.filter(function (s) { return s[0] === UI.stock; })[0] || [UI.stock, ""];
+    var rLabel = { "1mo": "1 ay", "6mo": "6 ay", "1y": "1 yıl", "5y": "5 yıl" }[UI.srange];
+    $("sc-title").textContent = info[0] + " · " + rLabel;
+    $("sc-sub").textContent = SCH.loading ? "yükleniyor…" : info[1];
+    var box = $("schart"), pts = SCH.pts || [];
+    if (pts.length < 2) {
+      box.innerHTML = '<div class="empty">' + (SCH.loading ? "Borsa geçmişi yükleniyor…" : "Bu hisse için grafik verisi şu an alınamadı.") + "</div>";
+      $("sc-now").innerHTML = ""; $("sc-stats").innerHTML = ""; return;
+    }
+    var vs = pts.map(function (p) { return p.v; }), mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+    var pad = (mx - mn) * 0.08 || mx * 0.02, lo = mn - pad, hi = mx + pad;
+    var W = 340, H = 190, pl = 6, pr = 6, pt = 12, pb = 22;
+    function X(i) { return pl + i / (vs.length - 1) * (W - pl - pr); }
+    function Y(v) { return pt + (1 - (v - lo) / (hi - lo)) * (H - pt - pb); }
+    var line = vs.map(function (v, i) { return X(i).toFixed(1) + "," + Y(v).toFixed(1); }).join(" ");
+    var first = vs[0], last = vs[vs.length - 1], chg = (last - first) / first * 100, col = chg >= 0 ? "var(--up)" : "var(--down)";
+    var grid = "";
+    [0, 0.5, 1].forEach(function (f) {
+      var v = lo + (hi - lo) * f, y = Y(v);
+      grid += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="var(--line)" stroke-width="1"/><text class="ct" x="' + (pl + 2) + '" y="' + (y - 3).toFixed(1) + '">' + fmt(v, 2) + "</text>";
+    });
+    box.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Borsa grafiği">' + grid +
+      '<polygon points="' + pl + "," + (H - pb) + " " + line + " " + (W - pr) + "," + (H - pb) + '" fill="' + col + '" opacity=".12"/>' +
+      '<polyline points="' + line + '" fill="none" stroke="' + col + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<line id="scx" x1="0" x2="0" y1="' + pt + '" y2="' + (H - pb) + '" stroke="var(--muted)" stroke-width="1" opacity="0"/>' +
+      '<circle id="scd" cx="' + X(vs.length - 1).toFixed(1) + '" cy="' + Y(last).toFixed(1) + '" r="3.5" fill="' + col + '"/>' +
+      '<text class="ct" x="' + pl + '" y="' + (H - 6) + '">' + trDate(pts[0].d) + '</text><text class="ct" text-anchor="end" x="' + (W - pr) + '" y="' + (H - 6) + '">' + trDate(pts[pts.length - 1].d) + "</text></svg>";
+    SCH.geo = { W: W, pl: pl, pr: pr, n: vs.length, X: X, Y: Y, vs: vs };
+    var unit = UI.stock === "XU100" ? " puan" : " ₺";
+    $("sc-now").innerHTML = '<div class="big num">' + fmt(last, 2) + unit + '</div><div class="meta">' + esc(info[1]) + " · " + chgHTML(chg) + " son " + rLabel + "</div>";
+    $("sc-stats").innerHTML = '<div class="kv">Dönem En Düşük<b class="num">' + fmt(mn, 2) + '</b></div><div class="kv">Dönem En Yüksek<b class="num">' + fmt(mx, 2) + '</b></div><div class="kv">İşlem Günü<b class="num">' + pts.length + "</b></div>";
+    $("sc-read").textContent = "Grafiğe dokunup kaydırarak tarih ve kapanış fiyatı görebilirsiniz.";
   }
 
   // ---------- Kripto ----------
@@ -589,7 +888,7 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
     }).catch(function () { failed.crypto = true; }).then(function () { renderCrypto(); renderFx(); });
   }
 
-  // ---------- Altın/gümüş (ana sayfa) ----------
+  // ---------- Altın/gümüş ----------
   function dayChange(key, price) {
     try {
       var today = new Date().toISOString().slice(0, 10);
@@ -613,7 +912,7 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
     }).catch(function () { failed.metals = true; }).then(renderFx);
   }
 
-  // ---------- Döviz (USD bazlı tek kaynak, TL'ye çevrilir) ----------
+  // ---------- Döviz ----------
   function normRates(j) {
     if (j && j.usd) return j.usd;
     if (j && j.rates) { var o = {}; Object.keys(j.rates).forEach(function (k) { o[k.toLowerCase()] = j.rates[k]; }); return o; }
@@ -657,21 +956,20 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
   function renderFx() {
     var html = "", C = S.cur;
     function pair(t, d, now, prev) { return row({ t: t, d: d, p: fmt(now, 4), c: prev ? (now - prev) / prev * 100 : null, s: null }); }
-    if (C && C.now.eur) {
-      var e1 = 1 / C.now.eur, e0 = C.prev && C.prev.eur ? 1 / C.prev.eur : null;
-      html += pair("EUR/USD", "Euro / Dolar", e1, e0);
-    }
-    var m = S.metals || {}, pax = S.crypto && S.crypto["pax-gold"], gold = m.gold || (pax && pax.price);
-    if (gold) html += row({ t: "Altın", d: "Ons · USD", p: "$" + fmt(gold, 2), c: pax ? pax.chg : null, s: pax ? pax.s : null });
-    if (m.silver) html += row({ t: "Gümüş", d: "Ons · USD", p: "$" + fmt(m.silver, 2), c: m.silverChg, s: null });
     if (C && C.now.try) {
       html += pair("USD/TRY", "Dolar / Lira", C.now.try, C.prev && C.prev.try);
       if (C.now.eur) html += pair("EUR/TRY", "Euro / Lira", C.now.try / C.now.eur, C.prev && C.prev.try && C.prev.eur ? C.prev.try / C.prev.eur : null);
     }
+    var m = S.metals || {}, pax = S.crypto && S.crypto["pax-gold"], gold = m.gold || (pax && pax.price);
+    if (gold) {
+      var gramTry = (C && C.now.try) ? (gold * C.now.try / OZ) : null;
+      html += row({ t: "Gram Altın", d: "Ons: $" + fmt(gold, 0), p: gramTry ? fmt(gramTry, 2) + " ₺" : "$" + fmt(gold, 2), c: pax ? pax.chg : null, s: pax ? pax.s : null });
+    }
+    if (m.silver) html += row({ t: "Gümüş", d: "Ons · USD", p: "$" + fmt(m.silver, 2), c: m.silverChg, s: null });
     $("b-fx").innerHTML = html || '<div class="empty">' + ((failed.cur && failed.metals) ? "Döviz ve metal verisi alınamadı." : "Yükleniyor…") + "</div>";
     var t = Math.max(S.times.cur || 0, S.times.metals || 0);
     if (failed.cur || failed.metals) setMeta("m-fx", t ? "kısmen eski · " + hhmm(t) : "alınamadı", true);
-    else if (t) setMeta("m-fx", "güncel · " + hhmm(t) + " (kur günlük)", false);
+    else if (t) setMeta("m-fx", "güncel · " + hhmm(t), false);
   }
 
   // ---------- Kıymetli madenler ----------
@@ -723,7 +1021,6 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
     var dates = sampleDates(range), cache = mhLoad(); var c = cache[code] = cache[code] || {};
     var fixed = dates.filter(function (d) { return d !== "latest"; });
     var missing = fixed.filter(function (d) { return !c[d]; });
-    var fetchLatest = true;
     CH.loading = true; CH.done = 0; CH.total = missing.length + 1; CH.err = "";
     CH.dates = fixed; CH.code = code;
     CH.pts = buildPts(code, fixed, c); renderChart();
@@ -747,7 +1044,6 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
     var name = (METALS.filter(function (m) { return m[0] === UI.metal; })[0] || [0, ""])[1];
     $("c-title").textContent = name + " · " + ({ "1A": "1 ay", "6A": "6 ay", "1Y": "1 yıl", "5Y": "5 yıl" }[UI.range]);
     $("c-sub").textContent = CH.loading ? "yükleniyor " + CH.done + "/" + CH.total : "";
-    ["seg-range", "seg-unit"].forEach(function (id) { /* düğme durumları aşağıda */ });
     setSeg();
     if (pts.length < 2) {
       box.innerHTML = '<div class="empty">' + (CH.loading ? "Geçmiş veri yükleniyor… " + CH.done + "/" + CH.total : (CH.err || "Grafik verisi yok.")) + "</div>";
@@ -768,29 +1064,230 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
       '<circle id="cd" cx="' + X(vs.length - 1).toFixed(1) + '" cy="' + Y(last).toFixed(1) + '" r="3.5" fill="' + col + '"/>' +
       '<text class="ct" x="' + pl + '" y="' + (H - 6) + '">' + trDate(pts[0].d) + '</text><text class="ct" text-anchor="end" x="' + (W - pr) + '" y="' + (H - 6) + '">' + trDate(pts[pts.length - 1].d) + "</text></svg>";
     CH.geo = { W: W, pl: pl, pr: pr, n: vs.length, X: X, Y: Y, vs: vs };
-    var unit = UI.unit === "try" ? " ₺" : " $", dec = last < 100 ? 2 : 2;
     $("c-now").innerHTML = '<div class="big num">' + (UI.unit === "try" ? fmt(last, 2) + " ₺" : "$" + fmt(last, 2)) + '</div><div class="meta">' + (UI.unit === "try" ? "gram başına" : "ons başına") + " · " + chgHTML(chg) + " son " + ({ "1A": "1 ayda", "6A": "6 ayda", "1Y": "1 yılda", "5Y": "5 yılda" }[UI.range]) + "</div>";
     function f(v) { return UI.unit === "try" ? fmt(v, 2) + " ₺" : "$" + fmt(v, 2); }
     $("c-stats").innerHTML = '<div class="kv">En düşük<b class="num">' + f(mn) + '</b></div><div class="kv">En yüksek<b class="num">' + f(mx) + '</b></div><div class="kv">Veri noktası<b class="num">' + pts.length + "</b></div>";
     $("c-read").textContent = "Grafiğe dokunup kaydırarak tarih ve değer görebilirsiniz.";
   }
   function setSeg() {
-    ["1A", "6A", "1Y", "5Y"].forEach(function () {});
     var r = $("seg-range"), u = $("seg-unit");
     if (r && r.children) for (var i = 0; i < r.children.length; i++) r.children[i].className = r.children[i].getAttribute("data-v") === UI.range ? "on" : "";
     if (u && u.children) for (var j = 0; j < u.children.length; j++) u.children[j].className = u.children[j].getAttribute("data-v") === UI.unit ? "on" : "";
   }
+
+  // ---------- Ekonomi: Enflasyon, Konut & Araç ----------
+  var INF_GEO = null;
+  function renderEconomy() {
+    // 1. Enflasyon Grafiği
+    var pts = INFLATION_DATA;
+    var vs = pts.map(function (p) { return p.y; }), mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
+    var lo = mn - 3, hi = mx + 3, W = 340, H = 160, pl = 6, pr = 6, pt = 12, pb = 22;
+    function X(i) { return pl + i / (vs.length - 1) * (W - pl - pr); }
+    function Y(v) { return pt + (1 - (v - lo) / (hi - lo)) * (H - pt - pb); }
+    var line = vs.map(function (v, i) { return X(i).toFixed(1) + "," + Y(v).toFixed(1); }).join(" ");
+    var grid = "";
+    [0, 0.5, 1].forEach(function (f) {
+      var v = lo + (hi - lo) * f, y = Y(v);
+      grid += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="var(--line)" stroke-width="1"/><text class="ct" x="' + (pl + 2) + '" y="' + (y - 3).toFixed(1) + '">%' + fmt(v, 1) + "</text>";
+    });
+    $("inf-chart").innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Enflasyon grafiği">' + grid +
+      '<polygon points="' + pl + "," + (H - pb) + " " + line + " " + (W - pr) + "," + (H - pb) + '" fill="var(--accent)" opacity=".14"/>' +
+      '<polyline points="' + line + '" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<line id="icx" x1="0" x2="0" y1="' + pt + '" y2="' + (H - pb) + '" stroke="var(--muted)" stroke-width="1" opacity="0"/>' +
+      '<circle id="icd" cx="' + X(vs.length - 1).toFixed(1) + '" cy="' + Y(vs[vs.length - 1]).toFixed(1) + '" r="3.8" fill="var(--accent)"/>' +
+      '<text class="ct" x="' + pl + '" y="' + (H - 6) + '">' + pts[0].m + '</text><text class="ct" text-anchor="end" x="' + (W - pr) + '" y="' + (H - 6) + '">' + pts[pts.length - 1].m + "</text></svg>";
+    INF_GEO = { W: W, pl: pl, pr: pr, n: vs.length, X: X, Y: Y, vs: vs };
+
+    // 2. İllere Göre Konut Fiyatları
+    renderHousing();
+
+    // 3. Araba Fiyatları
+    renderCars();
+  }
+
+  function renderHousing() {
+    var qEl = $("city-q"), query = qEl ? qEl.value.trim().toLocaleLowerCase("tr-TR") : "";
+    var hs = $("house-sort");
+    if (hs && hs.children) for (var i = 0; i < hs.children.length; i++) hs.children[i].className = "chip" + (hs.children[i].getAttribute("data-v") === UI.hsort ? " on" : "");
+    var list = HOUSING_DATA.filter(function (x) {
+      return !query || x.city.toLocaleLowerCase("tr-TR").indexOf(query) > -1;
+    }).slice();
+    list.sort(function (a, b) { return b[UI.hsort] - a[UI.hsort]; });
+    var maxM2 = 75000;
+    $("house-list").innerHTML = list.length ? list.map(function (h) {
+      var pct = Math.min(100, Math.round(h.m2 / maxM2 * 100));
+      var realChg = h.chg - 29.77;
+      return '<div class="row nospark"><div><div class="t">' + esc(h.city) + ' <span class="tag">' + h.amort + ' yıl amort.</span></div>' +
+        '<div class="d num">Ort. 100 m²: ' + fmt(h.m2 * 100 / 1e6, 2) + ' Mn ₺ · Kira: ' + fmt(h.rent, 0) + ' ₺</div>' +
+        '<div class="bar-trk" style="margin-top:5px"><div class="bar-fill" style="width:' + pct + '%"></div></div></div>' +
+        '<div class="r"><div class="p num">' + fmt(h.m2, 0) + ' ₺/m²</div>' +
+        '<span class="chg ' + (realChg >= 0 ? "up" : "flat") + ' num">Yıllık +' + fmt(h.chg, 1) + '%</span></div></div>';
+    }).join("") : '<div class="empty">Eşleşen il bulunamadı.</div>';
+  }
+
+  function renderCars() {
+    var cc = $("car-cats");
+    if (cc && cc.children) for (var i = 0; i < cc.children.length; i++) cc.children[i].className = "chip" + (cc.children[i].getAttribute("data-v") === UI.ccat ? " on" : "");
+    var list = CARS_DATA.filter(function (c) { return UI.ccat === "all" || c.cat === UI.ccat; });
+    $("car-list").innerHTML = list.map(function (c) {
+      var badge = c.diff < 0 ? '<span class="chg up num">Kampanya ' + fmt(c.diff, 1) + '%</span>' : '<span class="chg flat num">Liste Fiyatı</span>';
+      return '<div class="row nospark"><div><div class="t">' + esc(c.brand + " " + c.model) + '</div><div class="d">' + esc(c.fuel) + '</div></div>' +
+        '<div class="r"><div class="p num">' + fmt(c.price, 0) + ' ₺</div>' + badge + '</div></div>';
+    }).join("");
+  }
+
+  // ---------- Spor (ESPN Public API) ----------
+  function loadSports(lg) {
+    lg = lg || UI.league;
+    var sbUrl = "https://site.api.espn.com/apis/site/v2/sports/soccer/" + lg + "/scoreboard";
+    var stUrl = "https://site.api.espn.com/apis/v2/sports/soccer/" + lg + "/standings";
+    return Promise.all([
+      getJSON([sbUrl, "https://api.allorigins.win/raw?url=" + enc(sbUrl)], 8000).catch(function () { return null; }),
+      getJSON([stUrl, "https://api.allorigins.win/raw?url=" + enc(stUrl)], 8000).catch(function () { return null; })
+    ]).then(function (r) {
+      var matches = [], table = [];
+      if (r[0] && r[0].events) {
+        matches = r[0].events.map(function (ev) {
+          var comp = ev.competitions && ev.competitions[0];
+          if (!comp) return null;
+          var home = comp.competitors.filter(function (c) { return c.homeAway === "home"; })[0] || comp.competitors[0];
+          var away = comp.competitors.filter(function (c) { return c.homeAway === "away"; })[0] || comp.competitors[1];
+          var st = comp.status && comp.status.type;
+          return {
+            date: ev.date,
+            state: st ? st.state : "pre",
+            detail: st ? (st.shortDetail || st.description) : "",
+            hName: home.team.shortDisplayName || home.team.name,
+            hLogo: home.team.logo || "",
+            hScore: home.score != null ? home.score : "-",
+            aName: away.team.shortDisplayName || away.team.name,
+            aLogo: away.team.logo || "",
+            aScore: away.score != null ? away.score : "-"
+          };
+        }).filter(Boolean);
+      }
+      if (r[1] && r[1].children && r[1].children[0] && r[1].children[0].standings) {
+        var entries = r[1].children[0].standings.entries || [];
+        table = entries.map(function (en, idx) {
+          var getStat = function (n) {
+            var s = (en.stats || []).filter(function (x) { return x.name === n; })[0];
+            return s ? s.value : 0;
+          };
+          return {
+            rank: getStat("rank") || (idx + 1),
+            name: en.team.shortDisplayName || en.team.name,
+            logo: (en.team.logos && en.team.logos[0] && en.team.logos[0].href) || "",
+            gp: getStat("gamesPlayed"),
+            w: getStat("wins"),
+            d: getStat("ties"),
+            l: getStat("losses"),
+            gd: getStat("pointDifferential"),
+            pts: getStat("points")
+          };
+        });
+      }
+      if (!matches.length && !table.length) throw new Error("empty sports");
+      S.sports[lg] = { matches: matches, table: table, t: Date.now() };
+      S.times["sp_" + lg] = Date.now(); failed["sp_" + lg] = false; save();
+    }).catch(function () {
+      failed["sp_" + lg] = true;
+    }).then(function () {
+      renderSports();
+      if (lg === "tur.1") renderHomeSports();
+    });
+  }
+
+  function matchHTML(m) {
+    var live = m.state === "in";
+    var pre = m.state === "pre";
+    var dt = "";
+    try {
+      var d = new Date(m.date);
+      dt = pre ? d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" }) + " " + d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }) : (m.detail || "MS");
+    } catch (e) { dt = m.detail; }
+    var scText = pre ? "v" : (m.hScore + " - " + m.aScore);
+    return '<div class="match">' +
+      '<div class="tm">' + (m.hLogo ? '<img src="' + esc(m.hLogo) + '" alt="" loading="lazy">' : "") + '<span>' + esc(m.hName) + '</span></div>' +
+      '<div class="sc-box"><div class="sc num">' + esc(scText) + '</div><div class="st' + (live ? " live" : "") + '">' + esc(dt) + '</div></div>' +
+      '<div class="tm away"><span>' + esc(m.aName) + '</span>' + (m.aLogo ? '<img src="' + esc(m.aLogo) + '" alt="" loading="lazy">' : "") + '</div>' +
+      '</div>';
+  }
+
+  function renderSports() {
+    var lg = UI.league, d = S.sports[lg];
+    $("leagues").innerHTML = LEAGUES.map(function (l) {
+      return '<button class="chip' + (l[0] === lg ? " on" : "") + '" data-act="league" data-v="' + l[0] + '">' + l[1] + "</button>";
+    }).join("");
+    var lgName = (LEAGUES.filter(function (l) { return l[0] === lg; })[0] || [0, ""])[1];
+    $("sp-title").textContent = lgName + " · Maçlar & Fikstür";
+    var g = "sp_" + lg, t = d && d.t;
+    if (failed[g]) setMeta("m-sports", t ? "eski veri · " + hhmm(t) : "alınamadı", true);
+    else if (t) setMeta("m-sports", "güncel · " + hhmm(t), false);
+    else setMeta("m-sports", "", false);
+
+    $("sp-matches").innerHTML = (d && d.matches && d.matches.length)
+      ? d.matches.map(matchHTML).join("")
+      : '<div class="empty">' + (failed[g] ? "Maç verisi şu an alınamadı." : "Yükleniyor…") + "</div>";
+
+    if (d && d.table && d.table.length) {
+      $("sp-table").innerHTML = '<table class="tbl"><thead><tr><th>#</th><th>Takım</th><th class="c">O</th><th class="c">G</th><th class="c">B</th><th class="c">M</th><th class="c">AV</th><th class="c">P</th></tr></thead><tbody>' +
+        d.table.map(function (r) {
+          return '<tr><td class="rk num' + (r.rank <= 4 ? " top" : "") + '">' + r.rank + '</td>' +
+            '<td><div class="tcell">' + (r.logo ? '<img src="' + esc(r.logo) + '" alt="" loading="lazy">' : "") + '<span>' + esc(r.name) + '</span></div></td>' +
+            '<td class="c num">' + r.gp + '</td><td class="c num">' + r.w + '</td><td class="c num">' + r.d + '</td><td class="c num">' + r.l + '</td>' +
+            '<td class="c num">' + (r.gd > 0 ? "+" + r.gd : r.gd) + '</td><td class="c num"><b>' + r.pts + '</b></td></tr>';
+        }).join("") + '</tbody></table>';
+    } else {
+      $("sp-table").innerHTML = '<div class="empty">' + (failed[g] ? "Puan durumu alınamadı." : "Yükleniyor…") + "</div>";
+    }
+  }
+
+  function renderHomeSports() {
+    var d = S.sports["tur.1"];
+    $("h-sports").innerHTML = (d && d.matches && d.matches.length)
+      ? d.matches.slice(0, 3).map(matchHTML).join("")
+      : '<div class="empty">' + (failed["sp_tur.1"] ? "Maç verisi alınamadı." : "Yükleniyor…") + "</div>";
+  }
+
+  // ---------- Dokunmatik Grafik Etkileşimi (Scrub) ----------
   function scrub(e) {
-    var host = e.target && e.target.closest ? e.target.closest("#chart") : null;
-    if (!host || !CH.geo) return;
-    var rect = host.getBoundingClientRect(), g = CH.geo;
-    var fx = (e.clientX - rect.left) / (rect.width || 1) * g.W;
-    var i = Math.round((fx - g.pl) / ((g.W - g.pl - g.pr) / (g.n - 1)));
-    i = Math.max(0, Math.min(g.n - 1, i));
-    var cx = $("cx"), cd = $("cd"), p = CH.pts[i];
-    if (cx) { cx.setAttribute("x1", g.X(i).toFixed(1)); cx.setAttribute("x2", g.X(i).toFixed(1)); cx.setAttribute("opacity", "1"); }
-    if (cd) { cd.setAttribute("cx", g.X(i).toFixed(1)); cd.setAttribute("cy", g.Y(g.vs[i]).toFixed(1)); }
-    $("c-read").textContent = trDate(p.d) + " · " + (UI.unit === "try" ? fmt(g.vs[i], 2) + " ₺ / gram" : "$" + fmt(g.vs[i], 2) + " / ons");
+    if (!e.target || !e.target.closest) return;
+    // 1. Kıymetli Madenler Grafiği
+    var hostM = e.target.closest("#chart");
+    if (hostM && CH.geo) {
+      var rect = hostM.getBoundingClientRect(), g = CH.geo;
+      var fx = (e.clientX - rect.left) / (rect.width || 1) * g.W;
+      var i = Math.max(0, Math.min(g.n - 1, Math.round((fx - g.pl) / ((g.W - g.pl - g.pr) / (g.n - 1)))));
+      var cx = $("cx"), cd = $("cd"), p = CH.pts[i];
+      if (cx) { cx.setAttribute("x1", g.X(i).toFixed(1)); cx.setAttribute("x2", g.X(i).toFixed(1)); cx.setAttribute("opacity", "1"); }
+      if (cd) { cd.setAttribute("cx", g.X(i).toFixed(1)); cd.setAttribute("cy", g.Y(g.vs[i]).toFixed(1)); }
+      $("c-read").textContent = trDate(p.d) + " · " + (UI.unit === "try" ? fmt(g.vs[i], 2) + " ₺ / gram" : "$" + fmt(g.vs[i], 2) + " / ons");
+      return;
+    }
+    // 2. Borsa Grafiği
+    var hostS = e.target.closest("#schart");
+    if (hostS && SCH.geo) {
+      var rectS = hostS.getBoundingClientRect(), gS = SCH.geo;
+      var fxS = (e.clientX - rectS.left) / (rectS.width || 1) * gS.W;
+      var iS = Math.max(0, Math.min(gS.n - 1, Math.round((fxS - gS.pl) / ((gS.W - gS.pl - gS.pr) / (gS.n - 1)))));
+      var scx = $("scx"), scd = $("scd"), pS = SCH.pts[iS];
+      if (scx) { scx.setAttribute("x1", gS.X(iS).toFixed(1)); scx.setAttribute("x2", gS.X(iS).toFixed(1)); scx.setAttribute("opacity", "1"); }
+      if (scd) { scd.setAttribute("cx", gS.X(iS).toFixed(1)); scd.setAttribute("cy", gS.Y(gS.vs[iS]).toFixed(1)); }
+      var unit = UI.stock === "XU100" ? " puan" : " ₺";
+      $("sc-read").textContent = trDate(pS.d) + " · Kapanış: " + fmt(gS.vs[iS], 2) + unit;
+      return;
+    }
+    // 3. Enflasyon Grafiği
+    var hostI = e.target.closest("#inf-chart");
+    if (hostI && INF_GEO) {
+      var rectI = hostI.getBoundingClientRect(), gI = INF_GEO;
+      var fxI = (e.clientX - rectI.left) / (rectI.width || 1) * gI.W;
+      var iI = Math.max(0, Math.min(gI.n - 1, Math.round((fxI - gI.pl) / ((gI.W - gI.pl - gI.pr) / (gI.n - 1)))));
+      var icx = $("icx"), icd = $("icd"), pI = INFLATION_DATA[iI];
+      if (icx) { icx.setAttribute("x1", gI.X(iI).toFixed(1)); icx.setAttribute("x2", gI.X(iI).toFixed(1)); icx.setAttribute("opacity", "1"); }
+      if (icd) { icd.setAttribute("cx", gI.X(iI).toFixed(1)); icd.setAttribute("cy", gI.Y(gI.vs[iI]).toFixed(1)); }
+      $("inf-read").textContent = pI.m + " · Yıllık TÜFE: %" + fmt(pI.y, 2) + " (Aylık artış: %" + fmt(pI.mo, 2) + ")";
+    }
   }
 
   // ---------- Haberler ----------
@@ -848,12 +1345,13 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
   }
 
   // ---------- Sekmeler, olaylar ----------
-  var TABS = ["home", "weather", "assets", "news"];
+  var TABS = ["home", "assets", "economy", "sports", "weather", "news"];
   function setTab(t) {
     UI.tab = t;
     TABS.forEach(function (n) { var v = $("v-" + n), b = $("t-" + n); if (v) v.hidden = n !== t; if (b) b.className = n === t ? "on" : ""; });
     save();
     if (typeof window.scrollTo === "function") window.scrollTo(0, 0);
+    if (t === "economy") renderEconomy();
     refresh(false);
   }
   var ACT = {
@@ -867,9 +1365,15 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
         pickLoc({ name: "Konumum", region: "", cc: "", lat: Math.round(p.coords.latitude * 1e4) / 1e4, lon: Math.round(p.coords.longitude * 1e4) / 1e4 });
       }, function () { $("results").innerHTML = '<div class="empty">Konum izni verilmedi. Şehir adını yazarak arayabilirsiniz.</div>'; }, { timeout: 10000 });
     },
+    stock: function (d) { UI.stock = d.v; save(); loadStockChart(); },
+    pickstock: function (d) { UI.stock = d.v; save(); setTab("assets"); loadStockChart(); },
+    srange: function (d) { UI.srange = d.v; save(); loadStockChart(); },
     metal: function (d) { UI.metal = d.v; save(); renderTiles(); loadChart(); },
     range: function (d) { UI.range = d.v; save(); loadChart(); },
     unit: function (d) { UI.unit = d.v; save(); renderChart(); },
+    hsort: function (d) { UI.hsort = d.v; renderHousing(); },
+    ccat: function (d) { UI.ccat = d.v; renderCars(); },
+    league: function (d) { UI.league = d.v; save(); renderSports(); var x = S.sports[d.v]; if (!x || Date.now() - x.t > 120000) loadSports(d.v); },
     ncat: function (d) { UI.ncat = d.v; save(); renderNews(); var x = S.news[d.v]; if (!x || Date.now() - x.t > 120000) loadNews(d.v); }
   };
   document.addEventListener("click", function (e) {
@@ -878,6 +1382,7 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
   });
   document.addEventListener("input", function (e) {
     if (e.target && e.target.id === "q") { clearTimeout(qTimer); var v = e.target.value.trim(); qTimer = setTimeout(function () { search(v); }, 350); }
+    if (e.target && e.target.id === "city-q") { renderHousing(); }
   });
   document.addEventListener("pointermove", scrub);
   document.addEventListener("pointerdown", scrub);
@@ -889,8 +1394,11 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
     metals: { every: 120, fn: loadMetals, on: ["home"] },
     cur: { every: 600, fn: loadCur, on: ["home", "assets"] },
     bist: { every: 120, fn: loadBist, on: ["home"] },
+    schart: { every: 600, fn: loadStockChart, on: ["assets"] },
     mnow: { every: 600, fn: loadMetalsNow, on: ["assets"] },
     chart: { every: 3600, fn: loadChart, on: ["assets"] },
+    hsports: { every: 180, fn: function () { return loadSports("tur.1"); }, on: ["home"] },
+    sports: { every: 180, fn: function () { return loadSports(UI.league); }, on: ["sports"] },
     news: { every: 300, fn: function () { return loadNews(UI.ncat); }, on: ["news"] },
     hnews: { every: 300, fn: function () { return loadNews("NATION"); }, on: ["home"] }
   };
@@ -907,7 +1415,9 @@ footer { color: var(--muted); font-size: 11.5px; padding: 12px 4px 0; }
     Promise.all(jobs).then(function () { busy = false; $("refresh").className = ""; stamp(); });
   }
 
-  renderWeather(); renderRecent(); renderBist(); renderCrypto(); renderCur(); renderFx(); renderTiles(); renderChart(); renderNews(); renderHomeNews(); stamp(); tick();
+  renderWeather(); renderRecent(); renderBist(); renderCrypto(); renderCur(); renderFx();
+  renderTiles(); renderChart(); renderStockChart(); renderEconomy(); renderSports(); renderHomeSports();
+  renderNews(); renderHomeNews(); stamp(); tick();
   setTab(UI.tab);
   setInterval(tick, 30000);
   setInterval(function () { if (document.visibilityState !== "hidden") refresh(false); }, 30000);
